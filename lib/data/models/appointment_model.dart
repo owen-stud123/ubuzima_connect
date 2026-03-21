@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
 
 class AppointmentModel extends Equatable {
@@ -28,9 +29,9 @@ class AppointmentModel extends Equatable {
       userId: json['userId'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      dateTime: json['dateTime'] != null
-          ? DateTime.parse(json['dateTime'])
-          : DateTime.now(),
+      dateTime: json['dateTime'] is Timestamp
+          ? (json['dateTime'] as Timestamp).toDate()
+          : DateTime.parse(json['dateTime']),
       status: json['status'] ?? 'pending',
       professionalName: json['professionalName'],
       location: json['location'],
@@ -43,7 +44,7 @@ class AppointmentModel extends Equatable {
       'userId': userId,
       'title': title,
       'description': description,
-      'dateTime': dateTime.toIso8601String(),
+      'dateTime': dateTime,
       'status': status,
       'professionalName': professionalName,
       'location': location,
@@ -65,13 +66,13 @@ class AppointmentModel extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    title,
-    description,
-    dateTime,
-    status,
-    professionalName,
-    location,
-  ];
+        id,
+        userId,
+        title,
+        description,
+        dateTime,
+        status,
+        professionalName,
+        location,
+      ];
 }
