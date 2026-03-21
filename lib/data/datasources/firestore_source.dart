@@ -15,29 +15,37 @@ class FirestoreSourceImpl implements FirestoreSource {
   static const String _appointmentsCollection = 'appointments';
 
   FirestoreSourceImpl({required FirebaseFirestore firebaseFirestore})
-    : _firebaseFirestore = firebaseFirestore;
+      : _firebaseFirestore = firebaseFirestore;
 
   @override
   Future<List<AppointmentModel>> getAppointments(String userId) async {
-    final QuerySnapshot<Map<String, dynamic>> snapshot =
-        await _firebaseFirestore
-            .collection(_appointmentsCollection)
-            .where('userId', isEqualTo: userId)
-            .get();
+    final snapshot = await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .where('userId', isEqualTo: userId)
+        .get();
+
     return snapshot.docs
-        .map((doc) => AppointmentModel.fromJson(doc.data()))
+        .map((doc) => AppointmentModel.fromJson({
+              ...doc.data(),
+              'id': doc.id,
+            }))
         .toList();
   }
 
   @override
   Future<AppointmentModel> getAppointmentById(String appointmentId) async {
-    final DocumentSnapshot<Map<String, dynamic>> doc = await _firebaseFirestore
+    final doc = await _firebaseFirestore
         .collection(_appointmentsCollection)
         .doc(appointmentId)
         .get();
+
     if (doc.exists) {
-      return AppointmentModel.fromJson(doc.data()!);
+      return AppointmentModel.fromJson({
+        ...doc.data()!,
+        'id': doc.id,
+      });
     }
+
     throw Exception('Appointment not found');
   }
 
@@ -67,15 +75,18 @@ class FirestoreSourceImpl implements FirestoreSource {
 
   @override
   Future<List<AppointmentModel>> getUpcomingAppointments(String userId) async {
-    final QuerySnapshot<Map<String, dynamic>> snapshot =
-        await _firebaseFirestore
-            .collection(_appointmentsCollection)
-            .where('userId', isEqualTo: userId)
-            .where('dateTime', isGreaterThan: Timestamp.now())
-            .orderBy('dateTime')
-            .get();
+    final snapshot = await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .where('userId', isEqualTo: userId)
+        .where('dateTime', isGreaterThan: Timestamp.now())
+        .orderBy('dateTime')
+        .get();
+
     return snapshot.docs
-        .map((doc) => AppointmentModel.fromJson(doc.data()))
+        .map((doc) => AppointmentModel.fromJson({
+              ...doc.data(),
+              'id': doc.id,
+            }))
         .toList();
   }
 }
