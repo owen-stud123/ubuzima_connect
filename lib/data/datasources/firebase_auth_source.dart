@@ -17,8 +17,8 @@ class FirebaseAuthSourceImpl implements FirebaseAuthSource {
   FirebaseAuthSourceImpl({
     required FirebaseAuth firebaseAuth,
     required GoogleSignIn googleSignIn,
-  }) : _firebaseAuth = firebaseAuth,
-       _googleSignIn = googleSignIn;
+  })  : _firebaseAuth = firebaseAuth,
+        _googleSignIn = googleSignIn;
 
   @override
   Future<User?> getCurrentUser() async {
@@ -43,14 +43,19 @@ class FirebaseAuthSourceImpl implements FirebaseAuthSource {
 
   @override
   Future<UserCredential> signInWithGoogle() async {
-    final GoogleSignInAccount? googleSignInAccount = await _googleSignIn
-        .signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount!.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
+    final account = await _googleSignIn.signIn();
+
+    if (account == null) {
+      throw Exception("Google sign in cancelled");
+    }
+
+    final auth = await account.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: auth.accessToken,
+      idToken: auth.idToken,
     );
+
     return await _firebaseAuth.signInWithCredential(credential);
   }
 
