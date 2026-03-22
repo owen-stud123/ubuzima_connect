@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+// DATA
 import 'data/datasources/firebase_auth_source.dart';
 import 'data/datasources/firestore_source.dart';
 import 'data/repositories/appointment_repository_impl.dart';
@@ -75,9 +76,6 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Ubuzima Connect',
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          ),
           home: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthLoadingState) {
@@ -92,12 +90,6 @@ class MyApp extends StatelessWidget {
 
               if (state is AuthUnauthenticatedState) {
                 return const LoginPage();
-              }
-
-              if (state is AuthErrorState) {
-                return Scaffold(
-                  body: Center(child: Text(state.message)),
-                );
               }
 
               return const SizedBox();
