@@ -1,59 +1,48 @@
-import 'package:ubuzima_connect/data/datasources/firestore_source.dart';
-import 'package:ubuzima_connect/data/models/appointment_model.dart'; // added tthis
-import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
-import 'package:ubuzima_connect/domain/repositories/appointment_repository.dart';
+import 'package:ubuzima_connect/data/datasources/firebase_auth_source.dart';
+import 'package:ubuzima_connect/domain/repositories/auth_repository.dart';
 
-class AppointmentRepositoryImpl implements AppointmentRepository {
-  final FirestoreSource _firestoreSource;
+class AuthRepositoryImpl implements AuthRepository {
+  final FirebaseAuthSource _authSource;
 
-  AppointmentRepositoryImpl({required FirestoreSource firestoreSource})
-      : _firestoreSource = firestoreSource;
+  AuthRepositoryImpl({required FirebaseAuthSource authSource})
+      : _authSource = authSource;
 
   @override
-  Future<List<AppointmentEntity>> getAppointments(String userId) async {
-    final models = await _firestoreSource.getAppointments(userId);
-    return models.map((model) => model.toEntity()).toList();
-  }
+  Future<AuthUser?> getCurrentUser() async {
+    final user = await _authSource.getCurrentUser();
+    if (user == null) return null;
 
-  @override
-  Future<AppointmentEntity> getAppointmentById(String appointmentId) async {
-    final model = await _firestoreSource.getAppointmentById(appointmentId);
-    return model.toEntity();
-  }
-
-  @override
-  Future<void> createAppointment(AppointmentEntity appointment) async {
-    final model = _entityToModel(appointment);
-    await _firestoreSource.createAppointment(model);
-  }
-
-  @override
-  Future<void> updateAppointment(AppointmentEntity appointment) async {
-    final model = _entityToModel(appointment);
-    await _firestoreSource.updateAppointment(model);
-  }
-
-  @override
-  Future<void> deleteAppointment(String appointmentId) async {
-    await _firestoreSource.deleteAppointment(appointmentId);
-  }
-
-  @override
-  Future<List<AppointmentEntity>> getUpcomingAppointments(String userId) async {
-    final models = await _firestoreSource.getUpcomingAppointments(userId);
-    return models.map((model) => model.toEntity()).toList();
-  }
-
-  AppointmentModel _entityToModel(AppointmentEntity entity) {
-    return AppointmentModel(
-      id: entity.id,
-      userId: entity.userId,
-      title: entity.title,
-      description: entity.description,
-      dateTime: entity.dateTime,
-      status: entity.status,
-      professionalName: entity.professionalName,
-      location: entity.location,
+    return AuthUser(
+      id: user.uid,
+      email: user.email ?? '',
+      name: user.displayName,
+      photoUrl: user.photoURL,
     );
+  }
+
+  @override
+  Future<void> signIn(String email, String password) async {
+    await _authSource.signIn(email, password);
+  }
+
+  @override
+  Future<void> signUp(String email, String password) async {
+    await _authSource.signUp(email, password);
+  }
+
+  @override
+  Future<void> signInWithGoogle() async {
+    await _authSource.signInWithGoogle();
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _authSource.signOut();
+  }
+
+  @override
+  Future<bool> isUserLoggedIn() async {
+    final user = await _authSource.getCurrentUser();
+    return user != null;
   }
 }
