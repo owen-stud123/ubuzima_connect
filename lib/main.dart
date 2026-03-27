@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
                 return OtpVerificationPage(email: email, userId: userId);
               }
               // AuthUnauthenticatedState, AuthErrorState, AuthOtpErrorState
-              return const LoginPage();
+              return const LandingPage();
             },
           ),
         ),
