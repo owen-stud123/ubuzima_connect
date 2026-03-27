@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'firebase_options.dart';
 
 // CORE
 import 'core/theme.dart';
@@ -26,12 +27,12 @@ import 'presentation/blocs/appointment_bloc/appointment_bloc.dart';
 
 // PAGES
 import 'presentation/pages/dashboard_page.dart';
-import 'presentation/pages/login_page.dart';
+import 'presentation/pages/landing_page.dart';
 import 'presentation/pages/otp_verification_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 

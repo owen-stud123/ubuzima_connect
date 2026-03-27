@@ -44,15 +44,6 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppTheme.textPrimary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthOtpSentState) {
@@ -83,27 +74,64 @@ class _SignupPageState extends State<SignupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Header
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Join UbuzimaConnect to manage your health appointments',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textSecondary,
+                  const SizedBox(height: 48),
+
+                  // Logo & branding — same as login
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppTheme.primaryBlue,
+                                AppTheme.primaryGreen
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryBlue
+                                    .withValues(alpha: 0.3),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.health_and_safety_rounded,
+                            color: Colors.white,
+                            size: 44,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'UbuzimaConnect',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Fungura konti / Create Account',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 40),
 
-                  // Form card
+                  // Card — same style as login
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -120,6 +148,24 @@ class _SignupPageState extends State<SignupPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        const Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Fill in your details to get started',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
                         // Full name
                         TextFormField(
                           controller: _nameController,
@@ -239,8 +285,8 @@ class _SignupPageState extends State<SignupPage> {
                               child: ElevatedButton(
                                 onPressed: isLoading ? null : _onSignUp,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryGreen,
-                                  disabledBackgroundColor: AppTheme.primaryGreen
+                                  backgroundColor: AppTheme.primaryBlue,
+                                  disabledBackgroundColor: AppTheme.primaryBlue
                                       .withValues(alpha: 0.6),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12)),
@@ -257,7 +303,7 @@ class _SignupPageState extends State<SignupPage> {
                                     : const Text(
                                         'CREATE ACCOUNT / Fungura Konti',
                                         style: TextStyle(
-                                          fontSize: 15,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
@@ -272,34 +318,7 @@ class _SignupPageState extends State<SignupPage> {
 
                   const SizedBox(height: 24),
 
-                  // Info note about OTP
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lightBlue,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.info_outline_rounded,
-                            color: AppTheme.primaryBlue, size: 20),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'After signing up, a 6-digit verification code will be sent to your email.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.primaryBlue,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Back to login
+                  // Back to login link — same style as login's sign up link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -323,6 +342,33 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   const SizedBox(height: 32),
+
+                  // Help — same as login
+                  Center(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Need help? / Ukeneye ubufasha?',
+                          style: TextStyle(
+                              color: AppTheme.textSecondary, fontSize: 12),
+                        ),
+                        const SizedBox(height: 4),
+                        GestureDetector(
+                          onTap: () {},
+                          child: const Text(
+                            'Call 114',
+                            style: TextStyle(
+                              color: AppTheme.primaryGreen,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

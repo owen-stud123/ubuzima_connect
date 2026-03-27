@@ -237,64 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
 
-                        const SizedBox(height: 16),
-
-                        // Divider
-                        Row(
-                          children: [
-                            const Expanded(
-                                child: Divider(color: AppTheme.dividerColor)),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              child: Text(
-                                'or',
-                                style: TextStyle(
-                                  color: AppTheme.textSecondary,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                            const Expanded(
-                                child: Divider(color: AppTheme.dividerColor)),
-                          ],
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Google Sign In
-                        SizedBox(
-                          height: 52,
-                          child: OutlinedButton.icon(
-                            onPressed: () => context
-                                .read<AuthBloc>()
-                                .add(const AuthSignInWithGoogleEvent()),
-                            icon: Image.network(
-                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                              width: 22,
-                              height: 22,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.g_mobiledata,
-                                size: 24,
-                                color: Colors.red,
-                              ),
-                            ),
-                            label: const Text(
-                              'Continue with Google',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textPrimary,
-                              ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                  color: AppTheme.dividerColor, width: 1.5),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
