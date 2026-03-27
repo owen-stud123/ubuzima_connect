@@ -1,4 +1,5 @@
 import 'package:ubuzima_connect/data/datasources/firestore_source.dart';
+import 'package:ubuzima_connect/data/models/appointment_model.dart';
 import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
 import 'package:ubuzima_connect/domain/repositories/appointment_repository.dart';
 
@@ -6,7 +7,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
   final FirestoreSource _firestoreSource;
 
   AppointmentRepositoryImpl({required FirestoreSource firestoreSource})
-    : _firestoreSource = firestoreSource;
+      : _firestoreSource = firestoreSource;
 
   @override
   Future<List<AppointmentEntity>> getAppointments(String userId) async {

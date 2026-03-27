@@ -21,15 +21,39 @@ class AppointmentEntity extends Equatable {
     this.location,
   });
 
+  /// Creates a copy of this entity with updated fields.
+  /// Useful for updating specific fields while keeping others unchanged.
+  AppointmentEntity copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? description,
+    DateTime? dateTime,
+    String? status,
+    String? professionalName,
+    String? location,
+  }) {
+    return AppointmentEntity(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      dateTime: dateTime ?? this.dateTime,
+      status: status ?? this.status,
+      professionalName: professionalName ?? this.professionalName,
+      location: location ?? this.location,
+    );
+  }
+
   @override
   List<Object?> get props => [
-    id,
-    userId,
-    title,
-    description,
-    dateTime,
-    status,
-    professionalName,
-    location,
-  ];
+        id,
+        userId,
+        title,
+        description,
+        dateTime,
+        status,
+        professionalName,
+        location,
+      ];
 }
