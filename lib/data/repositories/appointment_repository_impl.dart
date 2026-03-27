@@ -1,4 +1,5 @@
 import 'package:ubuzima_connect/data/datasources/firestore_source.dart';
+import 'package:ubuzima_connect/data/models/appointment_model.dart';
 import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
 import 'package:ubuzima_connect/domain/repositories/appointment_repository.dart';
 

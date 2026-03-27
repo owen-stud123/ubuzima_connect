@@ -5,7 +5,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuthSource _authSource;
 
   AuthRepositoryImpl({required FirebaseAuthSource authSource})
-    : _authSource = authSource;
+      : _authSource = authSource;
 
   @override
   Future<AuthUser?> getCurrentUser() async {
@@ -16,6 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
       email: user.email ?? '',
       name: user.displayName,
       photoUrl: user.photoURL,
+      isEmailVerified: true, // OTP verified means they are authenticated
     );
   }
 
@@ -25,8 +26,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> signUp(String email, String password) async {
-    await _authSource.signUp(email, password);
+  Future<void> signUp(String email, String password, String fullName) async {
+    await _authSource.signUp(email, password, fullName);
   }
 
   @override
@@ -43,5 +44,20 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isUserLoggedIn() async {
     final user = await _authSource.getCurrentUser();
     return user != null;
+  }
+
+  @override
+  Future<void> sendOtp(String email, String userId) async {
+    await _authSource.sendOtp(email, userId);
+  }
+
+  @override
+  Future<bool> verifyOtp(String userId, String code) async {
+    return await _authSource.verifyOtp(userId, code);
+  }
+
+  @override
+  Future<void> resendOtp(String email, String userId) async {
+    await _authSource.sendOtp(email, userId);
   }
 }
