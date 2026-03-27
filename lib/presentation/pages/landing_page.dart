@@ -147,17 +147,17 @@ class LandingPage extends StatelessWidget {
                         const SizedBox(height: 32),
 
                         // Feature pills
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: const [
                             _FeaturePill(
                                 icon: Icons.calendar_today_rounded,
                                 label: 'Appointments'),
-                            const SizedBox(width: 10),
                             _FeaturePill(
                                 icon: Icons.chat_bubble_outline_rounded,
                                 label: 'CHW Chat'),
-                            const SizedBox(width: 10),
                             _FeaturePill(
                                 icon: Icons.wifi_off_rounded,
                                 label: 'Offline'),
