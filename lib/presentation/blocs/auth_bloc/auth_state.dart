@@ -51,6 +51,16 @@ class AuthOtpResentState extends AuthState {
   List<Object?> get props => [email, userId];
 }
 
+/// OTP code verified successfully; user should login next.
+class AuthOtpVerifiedState extends AuthState {
+  final String email;
+
+  const AuthOtpVerifiedState({required this.email});
+
+  @override
+  List<Object?> get props => [email];
+}
+
 /// OTP code was wrong or expired.
 class AuthOtpErrorState extends AuthState {
   final String message;

@@ -112,7 +112,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (isValid) {
         final user = await _authRepository.getCurrentUser();
         if (user != null) {
-          emit(AuthAuthenticatedState(user: user));
+          // Require explicit login after OTP verification.
+          await _authRepository.signOut();
+          emit(AuthOtpVerifiedState(email: user.email));
+          emit(const AuthUnauthenticatedState());
         }
       } else {
         // We need email to rebuild the OTP screen — get it from current user
@@ -162,7 +165,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       return 'Incorrect email or password.';
     }
     if (raw.contains('user-not-found')) {
-      return 'No account found with this email.';
+      return 'No account found with this email. Please create an account first.';
     }
     if (raw.contains('weak-password')) {
       return 'Password must be at least 6 characters.';
@@ -175,6 +178,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
     if (raw.contains('too-many-requests')) {
       return 'Too many attempts. Please wait and try again.';
+    }
+    if (raw.contains('otp-not-verified')) {
+      return 'Please verify your account with the code sent to your email first.';
     }
     return 'Something went wrong. Please try again.';
   }

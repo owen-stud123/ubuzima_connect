@@ -105,10 +105,16 @@ class MyApp extends StatelessWidget {
               if (state is AuthAuthenticatedState) {
                 return const DashboardPage();
               }
-              if (state is AuthUnauthenticatedState) {
+              if (state is AuthUnauthenticatedState ||
+                  state is AuthInitialState ||
+                  state is AuthOtpVerifiedState ||
+                  state is AuthOtpSentState ||
+                  state is AuthOtpResentState ||
+                  state is AuthOtpErrorState ||
+                  state is AuthErrorState) {
                 return const LoginPage();
               }
-              return const SizedBox();
+              return const LoginPage();
             },
           ),
         ),

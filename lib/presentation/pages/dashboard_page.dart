@@ -9,7 +9,7 @@ import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
 import 'package:ubuzima_connect/presentation/pages/add_appointment_page.dart'; // ✅ make sure this path is correct
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();

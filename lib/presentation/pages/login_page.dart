@@ -4,6 +4,7 @@ import 'package:ubuzima_connect/core/theme.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_event.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
+import 'package:ubuzima_connect/presentation/pages/dashboard_page.dart';
 import 'package:ubuzima_connect/presentation/pages/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -40,7 +41,13 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: AppTheme.backgroundColor,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthErrorState) {
+          if (state is AuthAuthenticatedState) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardPage()),
+              (route) => false,
+            );
+          } else if (state is AuthErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -69,14 +76,18 @@ class _LoginPageState extends State<LoginPage> {
                           height: 80,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppTheme.primaryBlue, AppTheme.primaryGreen],
+                              colors: [
+                                AppTheme.primaryBlue,
+                                AppTheme.primaryGreen
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.3),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
                               ),
@@ -209,8 +220,8 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: isLoading ? null : _onSignIn,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.primaryBlue,
-                                  disabledBackgroundColor:
-                                      AppTheme.primaryBlue.withValues(alpha: 0.6),
+                                  disabledBackgroundColor: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.6),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -236,7 +247,6 @@ class _LoginPageState extends State<LoginPage> {
                             );
                           },
                         ),
-
                       ],
                     ),
                   ),
@@ -255,8 +265,7 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (_) => const SignupPage()),
+                          MaterialPageRoute(builder: (_) => const SignupPage()),
                         ),
                         child: const Text(
                           'Sign Up',

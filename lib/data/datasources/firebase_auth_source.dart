@@ -11,6 +11,7 @@ abstract class FirebaseAuthSource {
   Future<void> signOut();
   Future<void> sendOtp(String email, String userId);
   Future<bool> verifyOtp(String userId, String code);
+  Future<bool> isOtpVerified(String userId);
   Stream<User?> get authStateChanges;
 }
 
@@ -53,6 +54,17 @@ class FirebaseAuthSourceImpl implements FirebaseAuthSource {
 
     // Send email verification
     await credential.user?.sendEmailVerification();
+
+    // Persist minimal user profile for account existence checks.
+    final user = credential.user;
+    if (user != null) {
+      await _firestore.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'email': email.trim().toLowerCase(),
+        'fullName': fullName.trim(),
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    }
 
     return credential;
   }
@@ -134,6 +146,17 @@ class FirebaseAuthSourceImpl implements FirebaseAuthSource {
     // Mark as verified
     await _firestore.collection('otps').doc(userId).update({'verified': true});
     return true;
+  }
+
+  @override
+  Future<bool> isOtpVerified(String userId) async {
+    final doc = await _firestore.collection('otps').doc(userId).get();
+    if (!doc.exists) {
+      // Legacy users or non-OTP auth flows are treated as verified.
+      return true;
+    }
+    final data = doc.data();
+    return (data?['verified'] as bool?) ?? false;
   }
 
   @override
