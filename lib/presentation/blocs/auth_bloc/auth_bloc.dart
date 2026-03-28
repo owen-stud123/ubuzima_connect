@@ -7,12 +7,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
 
   AuthBloc({required AuthRepository authRepository})
-    : _authRepository = authRepository,
-      super(const AuthInitialState()) {
+      : _authRepository = authRepository,
+        super(const AuthInitialState()) {
     on<AuthCheckStatusEvent>(_onCheckStatus);
     on<AuthSignInEvent>(_onSignIn);
     on<AuthSignUpEvent>(_onSignUp);
     on<AuthSignInWithGoogleEvent>(_onSignInWithGoogle);
+    on<AuthSendOtpEvent>(_onSendOtp);
+    on<AuthVerifyOtpEvent>(_onVerifyOtp);
+    on<AuthResendOtpEvent>(_onResendOtp);
     on<AuthSignOutEvent>(_onSignOut);
   }
 
@@ -27,16 +30,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final user = await _authRepository.getCurrentUser();
         if (user != null) {
           emit(AuthAuthenticatedState(user: user));
+          return;
         }
-      } else {
-        emit(const AuthUnauthenticatedState());
       }
+      emit(const AuthUnauthenticatedState());
     } catch (e) {
-      emit(AuthErrorState(message: e.toString()));
+      emit(const AuthUnauthenticatedState());
     }
   }
 
-  Future<void> _onSignIn(AuthSignInEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onSignIn(
+    AuthSignInEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState());
     try {
       await _authRepository.signIn(event.email, event.password);
@@ -44,21 +50,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         emit(AuthAuthenticatedState(user: user));
       }
-    } catch (e) {
-      emit(AuthErrorState(message: e.toString()));
+    } on Exception catch (e) {
+      emit(AuthErrorState(message: _friendlyError(e.toString())));
     }
   }
 
-  Future<void> _onSignUp(AuthSignUpEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onSignUp(
+    AuthSignUpEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoadingState());
     try {
-      await _authRepository.signUp(event.email, event.password);
+      await _authRepository.signUp(event.email, event.password, event.fullName);
       final user = await _authRepository.getCurrentUser();
       if (user != null) {
-        emit(AuthAuthenticatedState(user: user));
+        // Send OTP after account creation
+        await _authRepository.sendOtp(user.email, user.id);
+        emit(AuthOtpSentState(email: user.email, userId: user.id));
       }
-    } catch (e) {
-      emit(AuthErrorState(message: e.toString()));
+    } on Exception catch (e) {
+      emit(AuthErrorState(message: _friendlyError(e.toString())));
     }
   }
 
@@ -73,8 +84,65 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         emit(AuthAuthenticatedState(user: user));
       }
-    } catch (e) {
-      emit(AuthErrorState(message: e.toString()));
+    } on Exception catch (e) {
+      emit(AuthErrorState(message: _friendlyError(e.toString())));
+    }
+  }
+
+  Future<void> _onSendOtp(
+    AuthSendOtpEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoadingState());
+    try {
+      await _authRepository.sendOtp(event.email, event.userId);
+      emit(AuthOtpSentState(email: event.email, userId: event.userId));
+    } on Exception catch (e) {
+      emit(AuthErrorState(message: _friendlyError(e.toString())));
+    }
+  }
+
+  Future<void> _onVerifyOtp(
+    AuthVerifyOtpEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoadingState());
+    try {
+      final isValid = await _authRepository.verifyOtp(event.userId, event.code);
+      if (isValid) {
+        final user = await _authRepository.getCurrentUser();
+        if (user != null) {
+          emit(AuthAuthenticatedState(user: user));
+        }
+      } else {
+        // We need email to rebuild the OTP screen — get it from current user
+        final user = await _authRepository.getCurrentUser();
+        emit(AuthOtpErrorState(
+          message: 'Incorrect or expired code. Please try again.',
+          email: user?.email ?? '',
+          userId: event.userId,
+        ));
+      }
+    } on Exception catch (e) {
+      final user = await _authRepository.getCurrentUser();
+      emit(AuthOtpErrorState(
+        message: _friendlyError(e.toString()),
+        email: user?.email ?? '',
+        userId: event.userId,
+      ));
+    }
+  }
+
+  Future<void> _onResendOtp(
+    AuthResendOtpEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoadingState());
+    try {
+      await _authRepository.resendOtp(event.email, event.userId);
+      emit(AuthOtpResentState(email: event.email, userId: event.userId));
+    } on Exception catch (e) {
+      emit(AuthErrorState(message: _friendlyError(e.toString())));
     }
   }
 
@@ -82,12 +150,32 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthSignOutEvent event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoadingState());
-    try {
-      await _authRepository.signOut();
-      emit(const AuthUnauthenticatedState());
-    } catch (e) {
-      emit(AuthErrorState(message: e.toString()));
+    await _authRepository.signOut();
+    emit(const AuthUnauthenticatedState());
+  }
+
+  String _friendlyError(String raw) {
+    if (raw.contains('email-already-in-use')) {
+      return 'An account with this email already exists.';
     }
+    if (raw.contains('wrong-password') || raw.contains('invalid-credential')) {
+      return 'Incorrect email or password.';
+    }
+    if (raw.contains('user-not-found')) {
+      return 'No account found with this email.';
+    }
+    if (raw.contains('weak-password')) {
+      return 'Password must be at least 6 characters.';
+    }
+    if (raw.contains('invalid-email')) {
+      return 'Please enter a valid email address.';
+    }
+    if (raw.contains('network-request-failed')) {
+      return 'No internet connection. Please check your network.';
+    }
+    if (raw.contains('too-many-requests')) {
+      return 'Too many attempts. Please wait and try again.';
+    }
+    return 'Something went wrong. Please try again.';
   }
 }

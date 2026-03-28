@@ -4,31 +4,37 @@ import 'package:ubuzima_connect/core/theme.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_event.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
-import 'package:ubuzima_connect/presentation/pages/signup_page.dart';
+import 'package:ubuzima_connect/presentation/pages/otp_verification_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _onSignIn() {
+  void _onSignUp() {
     if (!_formKey.currentState!.validate()) return;
-    context.read<AuthBloc>().add(AuthSignInEvent(
+    context.read<AuthBloc>().add(AuthSignUpEvent(
+          fullName: _nameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
         ));
@@ -40,7 +46,17 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: AppTheme.backgroundColor,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthErrorState) {
+          if (state is AuthOtpSentState) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OtpVerificationPage(
+                  email: state.email,
+                  userId: state.userId,
+                ),
+              ),
+            );
+          } else if (state is AuthErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -60,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const SizedBox(height: 48),
 
-                  // Logo & branding
+                  // Logo & branding — same as login
                   Center(
                     child: Column(
                       children: [
@@ -69,14 +85,18 @@ class _LoginPageState extends State<LoginPage> {
                           height: 80,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppTheme.primaryBlue, AppTheme.primaryGreen],
+                              colors: [
+                                AppTheme.primaryBlue,
+                                AppTheme.primaryGreen
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                                color: AppTheme.primaryBlue
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
                               ),
@@ -99,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Murakaza neza! / Welcome!',
+                          'Fungura konti / Create Account',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppTheme.textSecondary,
@@ -111,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 40),
 
-                  // Card
+                  // Card — same style as login
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -129,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          'Sign In',
+                          'Sign Up',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -138,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Enter your details to continue',
+                          'Fill in your details to get started',
                           style: TextStyle(
                             fontSize: 13,
                             color: AppTheme.textSecondary,
@@ -146,7 +166,29 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Email field
+                        // Full name
+                        TextFormField(
+                          controller: _nameController,
+                          textCapitalization: TextCapitalization.words,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                            labelText: 'Full Name',
+                            prefixIcon: Icon(Icons.person_outline_rounded,
+                                color: AppTheme.textSecondary),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter your full name';
+                            }
+                            if (value.trim().split(' ').length < 2) {
+                              return 'Please enter your first and last name';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Email
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -169,12 +211,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password field
+                        // Password
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) => _onSignIn(),
+                          textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
                             labelText: 'Password',
                             prefixIcon: const Icon(Icons.lock_outline,
@@ -192,28 +233,63 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
+                              return 'Please enter a password';
+                            }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Confirm password
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirm,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _onSignUp(),
+                          decoration: InputDecoration(
+                            labelText: 'Confirm Password',
+                            prefixIcon: const Icon(Icons.lock_outline,
+                                color: AppTheme.textSecondary),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureConfirm
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: AppTheme.textSecondary,
+                              ),
+                              onPressed: () => setState(
+                                  () => _obscureConfirm = !_obscureConfirm),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please confirm your password';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'Passwords do not match';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 28),
 
-                        // Sign In button
+                        // Sign Up button
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
                             final isLoading = state is AuthLoadingState;
                             return SizedBox(
                               height: 52,
                               child: ElevatedButton(
-                                onPressed: isLoading ? null : _onSignIn,
+                                onPressed: isLoading ? null : _onSignUp,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.primaryBlue,
-                                  disabledBackgroundColor:
-                                      AppTheme.primaryBlue.withValues(alpha: 0.6),
+                                  disabledBackgroundColor: AppTheme.primaryBlue
+                                      .withValues(alpha: 0.6),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                      borderRadius: BorderRadius.circular(12)),
                                 ),
                                 child: isLoading
                                     ? const SizedBox(
@@ -225,7 +301,7 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                       )
                                     : const Text(
-                                        'LOGIN / Injira',
+                                        'CREATE ACCOUNT / Fungura Konti',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
@@ -236,30 +312,25 @@ class _LoginPageState extends State<LoginPage> {
                             );
                           },
                         ),
-
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Sign up link
+                  // Back to login link — same style as login's sign up link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "Don't have an account? ",
+                        'Already have an account? ',
                         style: TextStyle(
                             color: AppTheme.textSecondary, fontSize: 14),
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SignupPage()),
-                        ),
+                        onTap: () => Navigator.pop(context),
                         child: const Text(
-                          'Sign Up',
+                          'Sign In',
                           style: TextStyle(
                             color: AppTheme.primaryBlue,
                             fontSize: 14,
@@ -272,7 +343,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 32),
 
-                  // Help
+                  // Help — same as login
                   Center(
                     child: Column(
                       children: [
@@ -283,9 +354,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 4),
                         GestureDetector(
-                          onTap: () {
-                            // Launch dialer for 114
-                          },
+                          onTap: () {},
                           child: const Text(
                             'Call 114',
                             style: TextStyle(

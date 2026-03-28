@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "194146947346",
+    "project_id": "ubuzima-connect-cc4a4",
+    "storage_bucket": "ubuzima-connect-cc4a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194146947346:android:35197af2b0d505d59ba3cb",
+        "android_client_info": {
+          "package_name": "com.example.ubuzima_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGZ81VLBD8eu34ickgwwpi6YKA-PIAL6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
