@@ -16,7 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
       email: user.email ?? '',
       name: user.displayName,
       photoUrl: user.photoURL,
-      isEmailVerified: true, // OTP verified means they are authenticated
+      isEmailVerified: true,
     );
   }
 

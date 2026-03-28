@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ubuzima_connect/core/theme.dart';
+import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_event.dart';
+import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
+import 'package:ubuzima_connect/presentation/pages/login_page.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
+  final String userId;
 
   const OtpVerificationPage({
     super.key,
     required this.email,
+    required this.userId,
   });
 
   @override
@@ -14,62 +21,20 @@ class OtpVerificationPage extends StatefulWidget {
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
-  bool _isVerified = false;
-  bool _isChecking = false;
   final TextEditingController _codeController = TextEditingController();
-  bool _isVerifyingCode = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkEmailVerification();
-  }
-
-  Future<void> _checkEmailVerification() async {
-    setState(() => _isChecking = true);
-
-    // Reload user to get latest email verification status
-    await FirebaseAuth.instance.currentUser?.reload();
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user?.emailVerified ?? false) {
-      setState(() => _isVerified = true);
-      // Navigate to dashboard after a brief delay
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+  void _verifyCode() {
+    final code = _codeController.text.trim();
+    if (code.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid 6-digit code.')),
+      );
+      return;
     }
 
-    setState(() => _isChecking = false);
-  }
-
-  Future<void> _verifyCode() async {
-    setState(() => _isVerifyingCode = true);
-
-    // After user enters code and clicks verify, check if email is verified
-    // (In production, you'd validate the code against your backend)
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Reload and check verification status
-    await FirebaseAuth.instance.currentUser?.reload();
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user?.emailVerified ?? false) {
-      setState(() => _isVerified = true);
-      if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Invalid code or email not verified yet')),
+    context.read<AuthBloc>().add(
+          AuthVerifyOtpEvent(userId: widget.userId, code: code),
         );
-      }
-    }
-
-    setState(() => _isVerifyingCode = false);
   }
 
   @override
@@ -81,88 +46,126 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verify Your Email'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.mail_outline,
-                  size: 80,
-                  color: Colors.blue,
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Verify Your Email',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+      appBar:
+          AppBar(title: const Text('Verify Your Account'), centerTitle: true),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthOtpVerifiedState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Verification successful. Please login.'),
+                backgroundColor: AppTheme.primaryGreen,
+              ),
+            );
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
+            );
+          } else if (state is AuthOtpErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppTheme.errorColor,
+              ),
+            );
+          } else if (state is AuthErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppTheme.errorColor,
+              ),
+            );
+          } else if (state is AuthOtpResentState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Verification code resent.')),
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.mail_outline,
+                      size: 80, color: AppTheme.primaryBlue),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Verify Your Account',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'We sent a verification code to $widget.email',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
+                  const SizedBox(height: 16),
+                  Text(
+                    'We sent a 6-digit code to ${widget.email}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 16, color: AppTheme.textSecondary),
                   ),
-                ),
-                const SizedBox(height: 32),
-                TextField(
-                  controller: _codeController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    letterSpacing: 8,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: '000000',
-                    hintStyle: TextStyle(
+                  const SizedBox(height: 32),
+                  TextField(
+                    controller: _codeController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
                       fontSize: 24,
                       letterSpacing: 8,
-                      color: Colors.grey[300],
+                      fontWeight: FontWeight.bold,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    decoration: InputDecoration(
+                      hintText: '000000',
+                      hintStyle: TextStyle(
+                        fontSize: 24,
+                        letterSpacing: 8,
+                        color: Colors.grey[300],
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isVerifyingCode ? null : _verifyCode,
-                    child: _isVerifyingCode
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Verify Code'),
+                  const SizedBox(height: 24),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state is AuthLoadingState;
+                      return SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _verifyCode,
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Verify Code'),
+                        ),
+                      );
+                    },
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: _isChecking ? null : _checkEmailVerification,
-                  child: const Text('Verified via Link?'),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Back to Sign Up'),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(
+                            AuthResendOtpEvent(
+                              email: widget.email,
+                              userId: widget.userId,
+                            ),
+                          );
+                    },
+                    child: const Text('Resend Code'),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Back to Sign Up'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

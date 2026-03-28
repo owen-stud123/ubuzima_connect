@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class StatusBadge extends StatelessWidget {
   final String status;
 
-  const StatusBadge({Key? key, required this.status}) : super(key: key);
+  const StatusBadge({super.key, required this.status});
 
   Color _backgroundColor(BuildContext context) {
     switch (status.toLowerCase()) {

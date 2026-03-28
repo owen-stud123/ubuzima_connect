@@ -52,6 +52,7 @@ class _SignupPageState extends State<SignupPage> {
               MaterialPageRoute(
                 builder: (_) => OtpVerificationPage(
                   email: state.email,
+                  userId: state.userId,
                 ),
               ),
             );
