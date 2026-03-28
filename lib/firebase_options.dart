@@ -64,10 +64,10 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBGZ81VLBD8eu34ickgwwpi6YKA-PIAL6o',
-    appId: '1:194146947346:web:5e9c87f2c1d4a2b3f5g6h7i8',
-    messagingSenderId: '194146947346',
-    projectId: 'ubuzima-connect-cc4a4',
-    storageBucket: 'ubuzima-connect-cc4a4.firebasestorage.app',
+    apiKey: 'AIzaSyCrr_0Optie07zfuzEAug_ywsN1g7jA64Q',
+    appId: '1:689991533987:web:827866044f6ac93a0d0616',
+    messagingSenderId: '689991533987',
+    projectId: 'ubuzima-connect-34fe9',
+    storageBucket: 'ubuzima-connect-34fe9.firebasestorage.app',
   );
 }
