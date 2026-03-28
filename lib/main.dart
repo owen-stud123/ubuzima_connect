@@ -23,7 +23,7 @@ import 'presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'presentation/blocs/auth_bloc/auth_event.dart';
 import 'presentation/blocs/auth_bloc/auth_state.dart';
 import 'presentation/blocs/appointment_bloc/appointment_bloc.dart';
-import 'presentation/blocs/dashboard_bloc/dashboard_bloc.dart'; // ← Member 4
+import 'presentation/blocs/dashboard_bloc/dashboard_bloc.dart';
 
 // PAGES
 import 'presentation/pages/dashboard_page.dart';
@@ -40,9 +40,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ FIX 1: Add firestore parameter
     final authSource = FirebaseAuthSourceImpl(
       firebaseAuth: FirebaseAuth.instance,
       googleSignIn: GoogleSignIn(),
+      firestore: FirebaseFirestore.instance, // ✅ REQUIRED
     );
 
     final firestoreSource = FirestoreSourceImpl(
@@ -69,10 +71,10 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => AppointmentBloc(
-              appointmentRepository: context.read<AppointmentRepository>(),
+              appointmentRepository:
+                  context.read<AppointmentRepository>(),
             ),
           ),
-          // ── Member 4: DashboardBloc ─────────────────────────────────
           BlocProvider(
             create: (context) => DashboardBloc(
               context.read<AppointmentRepository>(),
@@ -82,9 +84,15 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Ubuzima Connect',
+
+          // ✅ FIX 2: theme is fine
           theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+
+          // ❌ FIX 2: REMOVE this (you don’t have darkTheme)
+          // darkTheme: AppTheme.darkTheme,
+
           themeMode: ThemeMode.system,
+
           home: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthLoadingState) {
