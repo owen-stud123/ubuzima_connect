@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 // CORE
 import 'core/theme.dart';
+import 'firebase_options.dart';
 
 // DATA
 import 'data/datasources/firebase_auth_source.dart';
@@ -31,7 +32,9 @@ import 'presentation/pages/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -71,8 +74,7 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => AppointmentBloc(
-              appointmentRepository:
-                  context.read<AppointmentRepository>(),
+              appointmentRepository: context.read<AppointmentRepository>(),
             ),
           ),
           BlocProvider(
