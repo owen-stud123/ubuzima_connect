@@ -50,7 +50,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     // After user enters code and clicks verify, check if email is verified
     // (In production, you'd validate the code against your backend)
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // Reload and check verification status
     await FirebaseAuth.instance.currentUser?.reload();
     final user = FirebaseAuth.instance.currentUser;
@@ -63,7 +63,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid code or email not verified yet')),
+          const SnackBar(
+              content: Text('Invalid code or email not verified yet')),
         );
       }
     }
