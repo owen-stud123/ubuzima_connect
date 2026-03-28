@@ -4,8 +4,6 @@ import 'package:ubuzima_connect/core/theme.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_event.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
-import 'package:ubuzima_connect/presentation/pages/dashboard_page.dart';
-import 'package:ubuzima_connect/presentation/pages/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,38 +14,29 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  final _phoneController = TextEditingController();
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
   void _onSignIn() {
     if (!_formKey.currentState!.validate()) return;
     context.read<AuthBloc>().add(AuthSignInEvent(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
+          email: _phoneController.text.trim(),
+          password: '',
         ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: const Color(0xFFE8E0D8),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthAuthenticatedState) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const DashboardPage()),
-              (route) => false,
-            );
-          } else if (state is AuthErrorState) {
+          if (state is AuthErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
@@ -65,232 +54,193 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 32),
 
-                  // Logo & branding
-                  Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                AppTheme.primaryBlue,
-                                AppTheme.primaryGreen
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    AppTheme.primaryBlue.withValues(alpha: 0.3),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.health_and_safety_rounded,
-                            color: Colors.white,
-                            size: 44,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'UbuzimaConnect',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryBlue,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Murakaza neza! / Welcome!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ],
+                  // Title
+                  const Center(
+                    child: Text(
+                      'UbuzimaConnect',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2E7D32),
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
-                  // Card
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surfaceColor,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Sign In',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
+                  // Hero image from network
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      'https://images.unsplash.com/photo-1531983412531-1f49a365ffed?w=800&fit=crop',
+                      height: 220,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          height: 220,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Enter your details to continue',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Email field
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                            prefixIcon: Icon(Icons.email_outlined,
-                                color: AppTheme.textSecondary),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(r'^[\w.-]+@[\w.-]+\.\w+$')
-                                .hasMatch(value.trim())) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Password field
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (_) => _onSignIn(),
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: const Icon(Icons.lock_outline,
-                                color: AppTheme.textSecondary),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                color: AppTheme.textSecondary,
-                              ),
-                              onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF2E7D32),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 28),
-
-                        // Sign In button
-                        BlocBuilder<AuthBloc, AuthState>(
-                          builder: (context, state) {
-                            final isLoading = state is AuthLoadingState;
-                            return SizedBox(
-                              height: 52,
-                              child: ElevatedButton(
-                                onPressed: isLoading ? null : _onSignIn,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryBlue,
-                                  disabledBackgroundColor: AppTheme.primaryBlue
-                                      .withValues(alpha: 0.6),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: isLoading
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2.5,
-                                        ),
-                                      )
-                                    : const Text(
-                                        'LOGIN / Injira',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 220,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.image_outlined,
+                            size: 60,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
                     ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Sign up link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an account? ",
-                        style: TextStyle(
-                            color: AppTheme.textSecondary, fontSize: 14),
+                  // Welcome text
+                  const Center(
+                    child: Text(
+                      'Murakaza neza!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF333333),
                       ),
-                      GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const SignupPage()),
-                        ),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            color: AppTheme.primaryBlue,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
-                  // Help
+                  // Phone label
+                  const Text(
+                    'Enter Phone Number /\nShyiramo Nimero',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Phone input
+                  TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _onSignIn(),
+                    style: const TextStyle(fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: '078...',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      prefixIcon: const Icon(
+                        Icons.phone_outlined,
+                        color: Colors.grey,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF2E7D32),
+                          width: 1.5,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.red),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      if (!RegExp(r'^07[0-9]{8}$').hasMatch(value.trim())) {
+                        return 'Enter a valid Rwandan number (e.g. 078...)';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // LOGIN button
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state is AuthLoadingState;
+                      return SizedBox(
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _onSignIn,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2E7D32),
+                            disabledBackgroundColor:
+                                const Color(0xFF2E7D32).withValues(alpha: 0.6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  'LOGIN / Injira',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Help section
                   Center(
                     child: Column(
                       children: [
                         const Text(
                           'Need help? / Ukeneye ubufasha?',
                           style: TextStyle(
-                              color: AppTheme.textSecondary, fontSize: 12),
+                            color: Color(0xFF555555),
+                            fontSize: 13,
+                          ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         GestureDetector(
                           onTap: () {
                             // Launch dialer for 114
@@ -298,9 +248,9 @@ class _LoginPageState extends State<LoginPage> {
                           child: const Text(
                             'Call 114',
                             style: TextStyle(
-                              color: AppTheme.primaryGreen,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF333333),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -308,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
