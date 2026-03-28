@@ -47,7 +47,13 @@ class FirebaseAuthSourceImpl implements FirebaseAuthSource {
       email: email,
       password: password,
     );
+
+    // Update display name
     await credential.user?.updateDisplayName(fullName);
+
+    // Send email verification
+    await credential.user?.sendEmailVerification();
+
     return credential;
   }
 
@@ -89,16 +95,15 @@ class FirebaseAuthSourceImpl implements FirebaseAuthSource {
     await _firestore.collection('mail').add({
       'to': [email],
       'message': {
-        'subject': 'UbuzimaConnect — Kode y\'Inyemezabuguzi / Verification Code',
-        'text':
-            'Murakaza neza kuri UbuzimaConnect!\n\n'
+        'subject':
+            'UbuzimaConnect — Kode y\'Inyemezabuguzi / Verification Code',
+        'text': 'Murakaza neza kuri UbuzimaConnect!\n\n'
             'Your verification code is: $code\n\n'
             'This code expires in 10 minutes. Do not share it with anyone.\n\n'
             '---\n'
             'Kode yawe ni: $code\n'
             'Kode irangira mu minota 10.',
-        'html':
-            '<div style="font-family:sans-serif;max-width:480px;margin:auto;">'
+        'html': '<div style="font-family:sans-serif;max-width:480px;margin:auto;">'
             '<h2 style="color:#1A73A7;">UbuzimaConnect</h2>'
             '<p>Murakaza neza! / Welcome!</p>'
             '<p>Your email verification code is:</p>'

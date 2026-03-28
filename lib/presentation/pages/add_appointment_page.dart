@@ -21,7 +21,7 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
   final _descriptionController = TextEditingController();
   final _professionalNameController = TextEditingController();
   final _locationController = TextEditingController();
-  
+
   DateTime? _selectedDateTime;
   String _selectedStatus = 'scheduled';
 
@@ -81,8 +81,8 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
               : _locationController.text,
         );
         context.read<AppointmentBloc>().add(
-          CreateAppointmentEvent(appointment: appointment),
-        );
+              CreateAppointmentEvent(appointment: appointment),
+            );
       }
     } else if (_selectedDateTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -199,9 +199,8 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
                 BlocBuilder<AppointmentBloc, AppointmentState>(
                   builder: (context, state) {
                     return ElevatedButton(
-                      onPressed: state is AppointmentLoadingState
-                          ? null
-                          : _submitForm,
+                      onPressed:
+                          state is AppointmentLoadingState ? null : _submitForm,
                       child: state is AppointmentLoadingState
                           ? const SizedBox(
                               height: 20,

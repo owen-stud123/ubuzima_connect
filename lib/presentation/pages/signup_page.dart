@@ -52,7 +52,6 @@ class _SignupPageState extends State<SignupPage> {
               MaterialPageRoute(
                 builder: (_) => OtpVerificationPage(
                   email: state.email,
-                  userId: state.userId,
                 ),
               ),
             );
@@ -95,8 +94,8 @@ class _SignupPageState extends State<SignupPage> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryBlue
-                                    .withValues(alpha: 0.3),
+                                color:
+                                    AppTheme.primaryBlue.withValues(alpha: 0.3),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
                               ),

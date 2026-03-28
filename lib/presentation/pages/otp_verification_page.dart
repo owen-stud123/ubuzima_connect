@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ubuzima_connect/core/theme.dart';
-import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
-import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_event.dart';
-import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
-  final String userId;
 
   const OtpVerificationPage({
     super.key,
     required this.email,
-    required this.userId,
   });
 
   @override
@@ -21,33 +14,97 @@ class OtpVerificationPage extends StatefulWidget {
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
-  // One controller + focus node per digit box
-  final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(6, (_) => FocusNode());
-
-  bool _hasError = false;
-  String _errorMessage = '';
+  bool _isVerified = false;
+  bool _isChecking = false;
 
   @override
-  void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    for (final f in _focusNodes) {
-      f.dispose();
-    }
-    super.dispose();
+  void initState() {
+    super.initState();
+    _checkEmailVerification();
   }
 
-  String get _fullCode =>
-      _controllers.map((c) => c.text).join();
+  Future<void> _checkEmailVerification() async {
+    setState(() => _isChecking = true);
+    
+    // Reload user to get latest email verification status
+    await FirebaseAuth.instance.currentUser?.reload();
+    final user = FirebaseAuth.instance.currentUser;
+    
+    if (user?.emailVerified ?? false) {
+      setState(() => _isVerified = true);
+      // Navigate to dashboard
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/dashboard');
+      }
+    }
+    
+    setState(() => _isChecking = false);
+  }
 
-  void _onDigitChanged(int index, String value) {
-    if (value.isNotEmpty) {
-      // Move focus forward
-      if (index < 5) {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Verify Your Email'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.mail_outline,
+                size: 80,
+                color: Colors.blue,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Check Your Email',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'We sent a verification link to $widget.email',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Click the link in your email to verify your account. Then come back and click "Verified" below.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 48),
+              ElevatedButton(
+                onPressed: _isChecking ? null : _checkEmailVerification,
+                child: _isChecking
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Verified'),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Back to Sign Up'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
         _focusNodes[index + 1].requestFocus();
       } else {
         _focusNodes[index].unfocus();
