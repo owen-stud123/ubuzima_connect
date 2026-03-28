@@ -85,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(width: 16),
                     Text(
-                      _text(language, 'My Profile', 'Umwirondoro Wanjye'),
+                      _text(language, 'My Profile', 'Umwirondoro'),
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -232,39 +232,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 20),
 
                 // Notifications
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _text(language, 'Notifications', 'Amenyesha'),
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            notificationsEnabled
-                                ? _text(language, 'On', 'Bifunguye')
-                                : _text(language, 'Off', 'Bifunze'),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          Switch.adaptive(
-                            value: notificationsEnabled,
-                            activeThumbColor: _mediumGreen,
-                            activeTrackColor: const Color(0xFF9FDCBB),
-                            onChanged: (value) {
-                              setState(() => notificationsEnabled = value);
-                            },
-                          ),
-                        ],
-                      )
-                    ],
+                GestureDetector(
+                  onTap: () {
+                    setState(() => notificationsEnabled = !notificationsEnabled);
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          _text(language, 'Notifications', 'Imenyesha'),
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              notificationsEnabled
+                                  ? _text(language, 'On', 'Bifunguye')
+                                  : _text(language, 'Off', 'Bifunze'),
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            Switch.adaptive(
+                              value: notificationsEnabled,
+                              activeThumbColor: _mediumGreen,
+                              activeTrackColor: const Color(0xFF9FDCBB),
+                              onChanged: (value) {
+                                setState(() => notificationsEnabled = value);
+                              },
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
 
