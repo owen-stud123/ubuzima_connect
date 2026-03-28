@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCrr_0Optie07zfuzEAug_ywsN1g7jA64Q',
+    apiKey: 'AIzaSyANJUXhUBEXzcZrul1Tef-ZcguX_LWXwpw',
     appId: '1:689991533987:web:827866044f6ac93a0d0616',
     messagingSenderId: '689991533987',
     projectId: 'ubuzima-connect-34fe9',
