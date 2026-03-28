@@ -44,11 +44,14 @@ class _DashboardPageState extends State<DashboardPage> {
     final hour = DateTime.now().hour;
     String greeting;
     if (hour < 12) {
-      greeting = language == AppLanguage.kinyarwanda ? 'Mugitondo' : 'Good morning';
+      greeting =
+          language == AppLanguage.kinyarwanda ? 'Mugitondo' : 'Good morning';
     } else if (hour < 18) {
-      greeting = language == AppLanguage.kinyarwanda ? 'Mwankunde' : 'Good afternoon';
+      greeting =
+          language == AppLanguage.kinyarwanda ? 'Mwankunde' : 'Good afternoon';
     } else {
-      greeting = language == AppLanguage.kinyarwanda ? 'Mwamasera' : 'Good evening';
+      greeting =
+          language == AppLanguage.kinyarwanda ? 'Mwamasera' : 'Good evening';
     }
     return greeting;
   }
@@ -78,7 +81,9 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             const SizedBox(height: 4),
             Text(
-              language == AppLanguage.kinyarwanda ? 'Muraho, $name 👋' : 'Hello, $name 👋',
+              language == AppLanguage.kinyarwanda
+                  ? 'Muraho, $name 👋'
+                  : 'Hello, $name 👋',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -91,8 +96,7 @@ class _DashboardPageState extends State<DashboardPage> {
         CircleAvatar(
           radius: 28,
           backgroundColor: AppTheme.lightBlue,
-          backgroundImage:
-              photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
+          backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,
           child: photoUrl.isEmpty
               ? const Icon(Icons.person, color: AppTheme.primaryBlue)
               : null,
@@ -101,7 +105,8 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildNextAppointmentCard(AppointmentEntity appointment, AppLanguage language) {
+  Widget _buildNextAppointmentCard(
+      AppointmentEntity appointment, AppLanguage language) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
@@ -119,7 +124,9 @@ class _DashboardPageState extends State<DashboardPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            language == AppLanguage.kinyarwanda ? 'GAHUNDA ZIKURIKIRA' : 'NEXT APPOINTMENT',
+            language == AppLanguage.kinyarwanda
+                ? 'GAHUNDA ZIKURIKIRA'
+                : 'NEXT APPOINTMENT',
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -191,7 +198,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      language == AppLanguage.kinyarwanda ? 'N\'imbere ya:' : 'With:',
+                      language == AppLanguage.kinyarwanda
+                          ? 'N\'imbere ya:'
+                          : 'With:',
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppTheme.textSecondary,
@@ -316,20 +325,6 @@ class _DashboardPageState extends State<DashboardPage> {
               ? 'Imbonerahamwe'
               : 'Dashboard'),
           centerTitle: true,
-          actions: [
-            IconButton(
-              tooltip: language == AppLanguage.kinyarwanda
-                  ? 'Umwirondoro'
-                  : 'Profile',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                );
-              },
-              icon: const Icon(Icons.person_outline),
-            ),
-          ],
         ),
         body: SafeArea(
           child: BlocBuilder<AppointmentBloc, AppointmentState>(
@@ -348,7 +343,8 @@ class _DashboardPageState extends State<DashboardPage> {
                         state.appointments.isNotEmpty)
                       Column(
                         children: [
-                          _buildNextAppointmentCard(state.appointments.first, language),
+                          _buildNextAppointmentCard(
+                              state.appointments.first, language),
                           const SizedBox(height: 28),
                         ],
                       )
