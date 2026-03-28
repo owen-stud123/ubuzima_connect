@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 // CORE
+import 'core/language_service.dart';
 import 'core/theme.dart';
 import 'firebase_options.dart';
 
@@ -35,6 +36,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await LanguageService.init();
   runApp(const MyApp());
 }
 

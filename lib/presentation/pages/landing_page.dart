@@ -159,8 +159,7 @@ class LandingPage extends StatelessWidget {
                                 icon: Icons.chat_bubble_outline_rounded,
                                 label: 'CHW Chat'),
                             _FeaturePill(
-                                icon: Icons.wifi_off_rounded,
-                                label: 'Offline'),
+                                icon: Icons.wifi_off_rounded, label: 'Offline'),
                           ],
                         ),
 
@@ -212,8 +211,7 @@ class LandingPage extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const SignupPage()),
+                        MaterialPageRoute(builder: (_) => const SignupPage()),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryBlue,
@@ -241,8 +239,7 @@ class LandingPage extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (_) => const LoginPage()),
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
                       ),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
