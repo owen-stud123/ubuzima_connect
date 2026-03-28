@@ -32,9 +32,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     
     if (user?.emailVerified ?? false) {
       setState(() => _isVerified = true);
-      // Navigate to dashboard
+      // Navigate to dashboard after a brief delay
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
     
@@ -105,16 +106,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     );
   }
 }
-        _focusNodes[index + 1].requestFocus();
-      } else {
-        _focusNodes[index].unfocus();
-        // Auto-submit when last digit is filled
-        if (_fullCode.length == 6) _submit();
-      }
-    }
-  }
 
-  void _onKeyEvent(int index, KeyEvent event) {
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.backspace &&
         _controllers[index].text.isEmpty &&
