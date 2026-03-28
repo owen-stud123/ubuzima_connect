@@ -4,7 +4,7 @@ import 'package:ubuzima_connect/core/theme.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_event.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
-import 'package:ubuzima_connect/presentation/pages/login_page.dart';
+import 'package:ubuzima_connect/presentation/pages/dashboard_page.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
@@ -50,16 +50,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           AppBar(title: const Text('Verify Your Account'), centerTitle: true),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthOtpVerifiedState) {
+          if (state is AuthAuthenticatedState) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Verification successful. Please login.'),
+                content: Text('Account verified! Logging in...'),
                 backgroundColor: AppTheme.primaryGreen,
               ),
             );
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+              MaterialPageRoute(builder: (_) => const DashboardPage()),
               (route) => false,
             );
           } else if (state is AuthOtpErrorState) {

@@ -112,10 +112,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (isValid) {
         final user = await _authRepository.getCurrentUser();
         if (user != null) {
-          // Require explicit login after OTP verification.
-          await _authRepository.signOut();
-          emit(AuthOtpVerifiedState(email: user.email));
-          emit(const AuthUnauthenticatedState());
+          // Auto-login after successful OTP verification
+          emit(AuthAuthenticatedState(user: user));
         }
       } else {
         // We need email to rebuild the OTP screen — get it from current user
