@@ -261,7 +261,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildDashboardGridItem({
-    required IconData icon,
+    required IconData? icon,
     required String label,
     required String labelRw,
     required VoidCallback onTap,
@@ -283,19 +283,21 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.lightBlue,
-                borderRadius: BorderRadius.circular(12),
+            if (icon != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightBlue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: AppTheme.primaryBlue,
+                  size: 32,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: AppTheme.primaryBlue,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
             ValueListenableBuilder<AppLanguage>(
               valueListenable: LanguageService.currentLanguage,
               builder: (context, language, _) => Text(
@@ -325,6 +327,20 @@ class _DashboardPageState extends State<DashboardPage> {
               ? 'Imbonerahamwe'
               : 'Dashboard'),
           centerTitle: true,
+          actions: [
+            IconButton(
+              tooltip: language == AppLanguage.kinyarwanda
+                  ? 'Umwirondoro'
+                  : 'Profile',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                );
+              },
+              icon: const Icon(Icons.person_outline),
+            ),
+          ],
         ),
         body: SafeArea(
           child: BlocBuilder<AppointmentBloc, AppointmentState>(
@@ -437,7 +453,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           },
                         ),
                         _buildDashboardGridItem(
-                          icon: Icons.settings_outlined,
+                          icon: null,
                           label: 'Profile',
                           labelRw: 'Umwirondoro',
                           onTap: () {
