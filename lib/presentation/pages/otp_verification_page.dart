@@ -25,11 +25,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   Future<void> _checkEmailVerification() async {
     setState(() => _isChecking = true);
-    
+
     // Reload user to get latest email verification status
     await FirebaseAuth.instance.currentUser?.reload();
     final user = FirebaseAuth.instance.currentUser;
-    
+
     if (user?.emailVerified ?? false) {
       setState(() => _isVerified = true);
       // Navigate to dashboard after a brief delay
@@ -38,7 +38,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
-    
+
     setState(() => _isChecking = false);
   }
 
@@ -106,4 +106,3 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     );
   }
 }
-

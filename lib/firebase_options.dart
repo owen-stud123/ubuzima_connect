@@ -47,19 +47,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBGZ81VLBD8eu34ickgwwpi6YKA-PIAL6o',
-    appId: '1:194146947346:android:35197af2b0d505d59ba3cb',
-    messagingSenderId: '194146947346',
-    projectId: 'ubuzima-connect-cc4a4',
-    storageBucket: 'ubuzima-connect-cc4a4.firebasestorage.app',
+    apiKey: 'AIzaSyBB57ajcwAeqi3xPDBq1K461x0pyGyNJFF',
+    appId: '1:689991533987:android:063879c965ec4f8a0d0616',
+    messagingSenderId: '689991533987',
+    projectId: 'ubuzima-connect-34fe9',
+    storageBucket: 'ubuzima-connect-34fe9.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB_mytqQt6I6_uU0syFK9azvjTF7mallZs',
-    appId: '1:194146947346:ios:4270aae07f2353df9ba3cb',
-    messagingSenderId: '194146947346',
-    projectId: 'ubuzima-connect-cc4a4',
-    storageBucket: 'ubuzima-connect-cc4a4.firebasestorage.app',
+    apiKey: 'AIzaSyAig3XVO18bHXe0bg3o8ICx59wkqqZOcBs',
+    appId: '1:689991533987:ios:a629c17028c72d390d0616',
+    messagingSenderId: '689991533987',
+    projectId: 'ubuzima-connect-34fe9',
+    storageBucket: 'ubuzima-connect-34fe9.firebasestorage.app',
     iosBundleId: 'com.example.ubuzimaConnect',
   );
 

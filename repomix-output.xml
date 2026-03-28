@@ -6629,182 +6629,6 @@ class AppTheme {
 }
 </file>
 
-<file path="lib/data/datasources/firestore_source.dart">
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ubuzima_connect/data/models/appointment_model.dart';
-
-abstract class FirestoreSource {
-  Future<List<AppointmentModel>> getAppointments(String userId);
-  Future<AppointmentModel> getAppointmentById(String appointmentId);
-  Future<void> createAppointment(AppointmentModel appointment);
-  Future<void> updateAppointment(AppointmentModel appointment);
-  Future<void> deleteAppointment(String appointmentId);
-  Future<List<AppointmentModel>> getUpcomingAppointments(String userId);
-}
-
-class FirestoreSourceImpl implements FirestoreSource {
-  final FirebaseFirestore _firebaseFirestore;
-  static const String _appointmentsCollection = 'appointments';
-
-  FirestoreSourceImpl({required FirebaseFirestore firebaseFirestore})
-      : _firebaseFirestore = firebaseFirestore;
-
-  @override
-  Future<List<AppointmentModel>> getAppointments(String userId) async {
-    final snapshot = await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .where('userId', isEqualTo: userId)
-        .get();
-
-    return snapshot.docs
-        .map((doc) => AppointmentModel.fromJson({
-              ...doc.data(),
-              'id': doc.id,
-            }))
-        .toList();
-  }
-
-  @override
-  Future<AppointmentModel> getAppointmentById(String appointmentId) async {
-    final doc = await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .doc(appointmentId)
-        .get();
-
-    if (doc.exists) {
-      return AppointmentModel.fromJson({
-        ...doc.data()!,
-        'id': doc.id,
-      });
-    }
-
-    throw Exception('Appointment not found');
-  }
-
-  @override
-  Future<void> createAppointment(AppointmentModel appointment) async {
-    await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .doc(appointment.id)
-        .set(appointment.toJson());
-  }
-
-  @override
-  Future<void> updateAppointment(AppointmentModel appointment) async {
-    await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .doc(appointment.id)
-        .update(appointment.toJson());
-  }
-
-  @override
-  Future<void> deleteAppointment(String appointmentId) async {
-    await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .doc(appointmentId)
-        .delete();
-  }
-
-  @override
-  Future<List<AppointmentModel>> getUpcomingAppointments(String userId) async {
-    final snapshot = await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .where('userId', isEqualTo: userId)
-        .where('dateTime', isGreaterThan: Timestamp.now())
-        .orderBy('dateTime')
-        .get();
-
-    return snapshot.docs
-        .map((doc) => AppointmentModel.fromJson({
-              ...doc.data(),
-              'id': doc.id,
-            }))
-        .toList();
-  }
-}
-</file>
-
-<file path="lib/data/models/appointment_model.dart">
-import 'package:equatable/equatable.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
-
-class AppointmentModel extends Equatable {
-  final String id;
-  final String userId;
-  final String title;
-  final String description;
-  final DateTime dateTime;
-  final String status;
-  final String? professionalName;
-  final String? location;
-
-  const AppointmentModel({
-    required this.id,
-    required this.userId,
-    required this.title,
-    required this.description,
-    required this.dateTime,
-    required this.status,
-    this.professionalName,
-    this.location,
-  });
-
-  factory AppointmentModel.fromJson(Map<String, dynamic> json) {
-    return AppointmentModel(
-      id: json['id'] ?? '',
-      userId: json['userId'] ?? '',
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      dateTime: json['dateTime'] is Timestamp
-          ? (json['dateTime'] as Timestamp).toDate()
-          : DateTime.parse(json['dateTime']),
-      status: json['status'] ?? 'pending',
-      professionalName: json['professionalName'],
-      location: json['location'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'userId': userId,
-      'title': title,
-      'description': description,
-      'dateTime': dateTime,
-      'status': status,
-      'professionalName': professionalName,
-      'location': location,
-    };
-  }
-
-  AppointmentEntity toEntity() {
-    return AppointmentEntity(
-      id: id,
-      userId: userId,
-      title: title,
-      description: description,
-      dateTime: dateTime,
-      status: status,
-      professionalName: professionalName,
-      location: location,
-    );
-  }
-
-  @override
-  List<Object?> get props => [
-        id,
-        userId,
-        title,
-        description,
-        dateTime,
-        status,
-        professionalName,
-        location,
-      ];
-}
-</file>
-
 <file path="lib/data/repositories/auth_repository_impl.dart">
 import 'package:ubuzima_connect/data/datasources/firebase_auth_source.dart';
 import 'package:ubuzima_connect/domain/repositories/auth_repository.dart';
@@ -8778,6 +8602,195 @@ class StatusBadge extends StatelessWidget {
 }
 </file>
 
+<file path="lib/data/datasources/firestore_source.dart">
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ubuzima_connect/data/models/appointment_model.dart';
+
+abstract class FirestoreSource {
+  Future<List<AppointmentModel>> getAppointments(String userId);
+  Future<AppointmentModel> getAppointmentById(String appointmentId);
+  Future<void> createAppointment(AppointmentModel appointment);
+  Future<void> updateAppointment(AppointmentModel appointment);
+  Future<void> deleteAppointment(String appointmentId);
+  Future<List<AppointmentModel>> getUpcomingAppointments(String userId);
+}
+
+class FirestoreSourceImpl implements FirestoreSource {
+  final FirebaseFirestore _firebaseFirestore;
+  static const String _appointmentsCollection = 'appointments';
+
+  FirestoreSourceImpl({required FirebaseFirestore firebaseFirestore})
+      : _firebaseFirestore = firebaseFirestore;
+
+  @override
+  Future<List<AppointmentModel>> getAppointments(String userId) async {
+    final snapshot = await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => AppointmentModel.fromJson({
+              ...doc.data(),
+              'id': doc.id,
+            }))
+        .toList();
+  }
+
+  @override
+  Future<AppointmentModel> getAppointmentById(String appointmentId) async {
+    final doc = await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .doc(appointmentId)
+        .get();
+
+    if (doc.exists) {
+      return AppointmentModel.fromJson({
+        ...doc.data()!,
+        'id': doc.id,
+      });
+    }
+
+    throw Exception('Appointment not found');
+  }
+
+  @override
+  Future<void> createAppointment(AppointmentModel appointment) async {
+    await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .doc(appointment.id)
+        .set(appointment.toJson());
+  }
+
+  @override
+  Future<void> updateAppointment(AppointmentModel appointment) async {
+    await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .doc(appointment.id)
+        .update(appointment.toJson());
+  }
+
+  @override
+  Future<void> deleteAppointment(String appointmentId) async {
+    await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .doc(appointmentId)
+        .delete();
+  }
+
+  @override
+  Future<List<AppointmentModel>> getUpcomingAppointments(String userId) async {
+    final snapshot = await _firebaseFirestore
+        .collection(_appointmentsCollection)
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    // Filter for upcoming appointments by comparing parsed DateTime
+    final now = DateTime.now();
+    return snapshot.docs
+        .map((doc) => AppointmentModel.fromJson({
+              ...doc.data(),
+              'id': doc.id,
+            }))
+        .where((appointment) => appointment.dateTime.isAfter(now))
+        .toList()
+      ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by date
+  }
+}
+</file>
+
+<file path="lib/data/models/appointment_model.dart">
+import 'package:equatable/equatable.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
+
+class AppointmentModel extends Equatable {
+  final String id;
+  final String userId;
+  final String title;
+  final String description;
+  final DateTime dateTime;
+  final String status;
+  final String? professionalName;
+  final String? location;
+
+  const AppointmentModel({
+    required this.id,
+    required this.userId,
+    required this.title,
+    required this.description,
+    required this.dateTime,
+    required this.status,
+    this.professionalName,
+    this.location,
+  });
+
+  factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    // Handle DateTime from either Firestore Timestamp or String format
+    DateTime parseDateTime(dynamic dateValue) {
+      if (dateValue is Timestamp) {
+        return dateValue.toDate();
+      } else if (dateValue is String) {
+        return DateTime.parse(dateValue);
+      }
+      return DateTime.now();
+    }
+
+    return AppointmentModel(
+      id: json['id'] ?? '',
+      userId: json['userId'] ?? '',
+      title: json['title'] ??
+          json['patientName'] ??
+          '', // Fallback for patientName
+      description: json['description'] ?? '',
+      dateTime: parseDateTime(
+          json['dateTime'] ?? json['date']), // Handle both field names
+      status: json['status'] ?? 'pending',
+      professionalName: json['professionalName'],
+      location: json['location'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'title': title,
+      'description': description,
+      'dateTime': dateTime,
+      'status': status,
+      'professionalName': professionalName,
+      'location': location,
+    };
+  }
+
+  AppointmentEntity toEntity() {
+    return AppointmentEntity(
+      id: id,
+      userId: userId,
+      title: title,
+      description: description,
+      dateTime: dateTime,
+      status: status,
+      professionalName: professionalName,
+      location: location,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        userId,
+        title,
+        description,
+        dateTime,
+        status,
+        professionalName,
+        location,
+      ];
+}
+</file>
+
 <file path="lib/data/repositories/appointment_repository_impl.dart">
 import 'package:ubuzima_connect/data/datasources/firestore_source.dart';
 import 'package:ubuzima_connect/data/models/appointment_model.dart';
@@ -8872,232 +8885,6 @@ class RefreshDashboard extends DashboardEvent {
 
   @override
   List<Object?> get props => [userId];
-}
-</file>
-
-<file path="lib/presentation/pages/add_appointment_page.dart">
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
-import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
-import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_bloc.dart';
-import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_event.dart';
-import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_state.dart';
-import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
-import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
-
-class AddAppointmentPage extends StatefulWidget {
-  const AddAppointmentPage({super.key});
-
-  @override
-  State<AddAppointmentPage> createState() => _AddAppointmentPageState();
-}
-
-class _AddAppointmentPageState extends State<AddAppointmentPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _professionalNameController = TextEditingController();
-  final _locationController = TextEditingController();
-
-  DateTime? _selectedDateTime;
-  String _selectedStatus = 'scheduled';
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _professionalNameController.dispose();
-    _locationController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDateTime() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-
-    if (date != null && mounted) {
-      final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-
-      if (time != null && mounted) {
-        setState(() {
-          _selectedDateTime = DateTime(
-            date.year,
-            date.month,
-            date.day,
-            time.hour,
-            time.minute,
-          );
-        });
-      }
-    }
-  }
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate() && _selectedDateTime != null) {
-      final authState = context.read<AuthBloc>().state;
-      if (authState is AuthAuthenticatedState) {
-        final appointment = AppointmentEntity(
-          id: const Uuid().v4(),
-          userId: authState.user.id,
-          title: _titleController.text,
-          description: _descriptionController.text,
-          dateTime: _selectedDateTime!,
-          status: _selectedStatus,
-          professionalName: _professionalNameController.text.isEmpty
-              ? null
-              : _professionalNameController.text,
-          location: _locationController.text.isEmpty
-              ? null
-              : _locationController.text,
-        );
-        context.read<AppointmentBloc>().add(
-              CreateAppointmentEvent(appointment: appointment),
-            );
-      }
-    } else if (_selectedDateTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date and time')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Appointment'),
-        centerTitle: true,
-      ),
-      body: BlocListener<AppointmentBloc, AppointmentState>(
-        listener: (context, state) {
-          if (state is AppointmentCreatedState) {
-            Navigator.of(context).pop(true);
-          } else if (state is AppointmentErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Appointment Title',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a title';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a description';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _professionalNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Professional Name',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _locationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Location',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                InkWell(
-                  onTap: _selectDateTime,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      _selectedDateTime == null
-                          ? 'Select Date & Time'
-                          : '${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year} '
-                              '${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: ['scheduled', 'completed', 'cancelled']
-                      .map((status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _selectedStatus = value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 24),
-                BlocBuilder<AppointmentBloc, AppointmentState>(
-                  builder: (context, state) {
-                    return ElevatedButton(
-                      onPressed:
-                          state is AppointmentLoadingState ? null : _submitForm,
-                      child: state is AppointmentLoadingState
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text('Create Appointment'),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 </file>
 
@@ -10020,6 +9807,232 @@ abstract class AuthRepository {
 }
 </file>
 
+<file path="lib/presentation/pages/add_appointment_page.dart">
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
+import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
+import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_bloc.dart';
+import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_event.dart';
+import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_state.dart';
+import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
+import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
+
+class AddAppointmentPage extends StatefulWidget {
+  const AddAppointmentPage({super.key});
+
+  @override
+  State<AddAppointmentPage> createState() => _AddAppointmentPageState();
+}
+
+class _AddAppointmentPageState extends State<AddAppointmentPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _professionalNameController = TextEditingController();
+  final _locationController = TextEditingController();
+
+  DateTime? _selectedDateTime;
+  String _selectedStatus = 'scheduled';
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _professionalNameController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDateTime() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (date != null && mounted) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (time != null && mounted) {
+        setState(() {
+          _selectedDateTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            time.hour,
+            time.minute,
+          );
+        });
+      }
+    }
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate() && _selectedDateTime != null) {
+      final authState = context.read<AuthBloc>().state;
+      if (authState is AuthAuthenticatedState) {
+        final appointment = AppointmentEntity(
+          id: const Uuid().v4(),
+          userId: authState.user.id, // Crucial for queryfiltering
+          title: _titleController.text,
+          description: _descriptionController.text,
+          dateTime: _selectedDateTime!,
+          status: _selectedStatus,
+          professionalName: _professionalNameController.text.isEmpty
+              ? null
+              : _professionalNameController.text,
+          location: _locationController.text.isEmpty
+              ? null
+              : _locationController.text,
+        );
+        context.read<AppointmentBloc>().add(
+              CreateAppointmentEvent(appointment: appointment),
+            );
+      }
+    } else if (_selectedDateTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a date and time')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Appointment'),
+        centerTitle: true,
+      ),
+      body: BlocListener<AppointmentBloc, AppointmentState>(
+        listener: (context, state) {
+          if (state is AppointmentCreatedState) {
+            Navigator.of(context).pop(true);
+          } else if (state is AppointmentErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Appointment Title',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a title';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a description';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _professionalNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Professional Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: _selectDateTime,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      _selectedDateTime == null
+                          ? 'Select Date & Time'
+                          : '${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year} '
+                              '${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedStatus,
+                  decoration: const InputDecoration(
+                    labelText: 'Status',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: ['scheduled', 'completed', 'cancelled']
+                      .map((status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(status),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedStatus = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 24),
+                BlocBuilder<AppointmentBloc, AppointmentState>(
+                  builder: (context, state) {
+                    return ElevatedButton(
+                      onPressed:
+                          state is AppointmentLoadingState ? null : _submitForm,
+                      child: state is AppointmentLoadingState
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Create Appointment'),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+</file>
+
 <file path="lib/presentation/pages/otp_verification_page.dart">
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10048,11 +10061,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
   Future<void> _checkEmailVerification() async {
     setState(() => _isChecking = true);
-    
+
     // Reload user to get latest email verification status
     await FirebaseAuth.instance.currentUser?.reload();
     final user = FirebaseAuth.instance.currentUser;
-    
+
     if (user?.emailVerified ?? false) {
       setState(() => _isVerified = true);
       // Navigate to dashboard after a brief delay
@@ -10061,7 +10074,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
-    
+
     setState(() => _isChecking = false);
   }
 

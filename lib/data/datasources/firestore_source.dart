@@ -89,7 +89,6 @@ class FirestoreSourceImpl implements FirestoreSource {
             }))
         .where((appointment) => appointment.dateTime.isAfter(now))
         .toList()
-        ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by date
+      ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by date
   }
 }
-

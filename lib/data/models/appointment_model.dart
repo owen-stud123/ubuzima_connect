@@ -37,9 +37,12 @@ class AppointmentModel extends Equatable {
     return AppointmentModel(
       id: json['id'] ?? '',
       userId: json['userId'] ?? '',
-      title: json['title'] ?? json['patientName'] ?? '', // Fallback for patientName
+      title: json['title'] ??
+          json['patientName'] ??
+          '', // Fallback for patientName
       description: json['description'] ?? '',
-      dateTime: parseDateTime(json['dateTime'] ?? json['date']), // Handle both field names
+      dateTime: parseDateTime(
+          json['dateTime'] ?? json['date']), // Handle both field names
       status: json['status'] ?? 'pending',
       professionalName: json['professionalName'],
       location: json['location'],
