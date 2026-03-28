@@ -19,17 +19,30 @@ class FirestoreSourceImpl implements FirestoreSource {
 
   @override
   Future<List<AppointmentModel>> getAppointments(String userId) async {
-    final snapshot = await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .where('userId', isEqualTo: userId)
-        .get();
+    try {
+      print('🔍 Querying Firestore for appointments with userId: $userId');
+      final snapshot = await _firebaseFirestore
+          .collection(_appointmentsCollection)
+          .where('userId', isEqualTo: userId)
+          .get();
 
-    return snapshot.docs
-        .map((doc) => AppointmentModel.fromJson({
-              ...doc.data(),
-              'id': doc.id,
-            }))
-        .toList();
+      print('✅ Got ${snapshot.docs.length} documents from Firestore');
+
+      final appointments = snapshot.docs.map((doc) {
+        print('📄 Parsing document: ${doc.id}');
+        return AppointmentModel.fromJson({
+          ...doc.data(),
+          'id': doc.id,
+        });
+      }).toList();
+
+      print('✅ Parsed ${appointments.length} appointments');
+      return appointments;
+    } catch (e, stackTrace) {
+      print('❌ Firestore query error: $e');
+      print('📍 Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   @override
@@ -75,20 +88,32 @@ class FirestoreSourceImpl implements FirestoreSource {
 
   @override
   Future<List<AppointmentModel>> getUpcomingAppointments(String userId) async {
-    final snapshot = await _firebaseFirestore
-        .collection(_appointmentsCollection)
-        .where('userId', isEqualTo: userId)
-        .get();
+    try {
+      print('🔍 Querying upcoming appointments for userId: $userId');
+      final snapshot = await _firebaseFirestore
+          .collection(_appointmentsCollection)
+          .where('userId', isEqualTo: userId)
+          .get();
 
-    // Filter for upcoming appointments by comparing parsed DateTime
-    final now = DateTime.now();
-    return snapshot.docs
-        .map((doc) => AppointmentModel.fromJson({
-              ...doc.data(),
-              'id': doc.id,
-            }))
-        .where((appointment) => appointment.dateTime.isAfter(now))
-        .toList()
-      ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by date
+      print('✅ Got ${snapshot.docs.length} documents from Firestore');
+
+      // Filter for upcoming appointments by comparing parsed DateTime
+      final now = DateTime.now();
+      final appointments = snapshot.docs
+          .map((doc) => AppointmentModel.fromJson({
+                ...doc.data(),
+                'id': doc.id,
+              }))
+          .where((appointment) => appointment.dateTime.isAfter(now))
+          .toList()
+        ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by date
+
+      print('✅ Filtered to ${appointments.length} upcoming appointments');
+      return appointments;
+    } catch (e, stackTrace) {
+      print('❌ Error fetching upcoming appointments: $e');
+      print('📍 Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 }
