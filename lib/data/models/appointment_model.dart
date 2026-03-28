@@ -24,14 +24,22 @@ class AppointmentModel extends Equatable {
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    // Handle DateTime from either Firestore Timestamp or String format
+    DateTime parseDateTime(dynamic dateValue) {
+      if (dateValue is Timestamp) {
+        return dateValue.toDate();
+      } else if (dateValue is String) {
+        return DateTime.parse(dateValue);
+      }
+      return DateTime.now();
+    }
+
     return AppointmentModel(
       id: json['id'] ?? '',
       userId: json['userId'] ?? '',
-      title: json['title'] ?? '',
+      title: json['title'] ?? json['patientName'] ?? '', // Fallback for patientName
       description: json['description'] ?? '',
-      dateTime: json['dateTime'] is Timestamp
-          ? (json['dateTime'] as Timestamp).toDate()
-          : DateTime.parse(json['dateTime']),
+      dateTime: parseDateTime(json['dateTime'] ?? json['date']), // Handle both field names
       status: json['status'] ?? 'pending',
       professionalName: json['professionalName'],
       location: json['location'],

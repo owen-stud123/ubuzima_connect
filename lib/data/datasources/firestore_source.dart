@@ -78,15 +78,18 @@ class FirestoreSourceImpl implements FirestoreSource {
     final snapshot = await _firebaseFirestore
         .collection(_appointmentsCollection)
         .where('userId', isEqualTo: userId)
-        .where('dateTime', isGreaterThan: Timestamp.now())
-        .orderBy('dateTime')
         .get();
 
+    // Filter for upcoming appointments by comparing parsed DateTime
+    final now = DateTime.now();
     return snapshot.docs
         .map((doc) => AppointmentModel.fromJson({
               ...doc.data(),
               'id': doc.id,
             }))
-        .toList();
+        .where((appointment) => appointment.dateTime.isAfter(now))
+        .toList()
+        ..sort((a, b) => a.dateTime.compareTo(b.dateTime)); // Sort by date
   }
 }
+

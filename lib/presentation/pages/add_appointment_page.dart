@@ -68,7 +68,7 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
       if (authState is AuthAuthenticatedState) {
         final appointment = AppointmentEntity(
           id: const Uuid().v4(),
-          userId: authState.user.id,
+          userId: authState.user.id, // Crucial for queryfiltering
           title: _titleController.text,
           description: _descriptionController.text,
           dateTime: _selectedDateTime!,
