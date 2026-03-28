@@ -16,7 +16,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   static const Color _mediumGreen = Color(0xFF2FAE66);
 
-  bool isKinyarwanda = true;
+  bool notificationsEnabled = true;
   bool isLoggedOut = false;
 
   String _initialsFromName(String? name) {
@@ -29,18 +29,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .toUpperCase();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    isKinyarwanda =
-        LanguageService.currentLanguage.value == AppLanguage.kinyarwanda;
-  }
-
   Future<void> _setLanguage(bool useKinyarwanda) async {
-    setState(() => isKinyarwanda = useKinyarwanda);
     await LanguageService.setLanguage(
       useKinyarwanda ? AppLanguage.kinyarwanda : AppLanguage.english,
     );
+  }
+
+  String _text(AppLanguage language, String english, String kinyarwanda) {
+    return language == AppLanguage.kinyarwanda ? kinyarwanda : english;
   }
 
   @override
@@ -49,29 +45,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = authState is AuthAuthenticatedState ? authState.user : null;
     final displayName = (user?.name != null && user!.name!.trim().isNotEmpty)
         ? user.name!.trim()
-        : 'User';
+        : _text(LanguageService.currentLanguage.value, 'User', 'Umukoresha');
     final displayEmail =
-        (user?.email ?? '').trim().isNotEmpty ? user!.email : 'No email';
+        (user?.email ?? '').trim().isNotEmpty
+            ? user!.email
+            : _text(LanguageService.currentLanguage.value, 'No email', 'Nta imeyili');
     final photoUrl = (user?.photoUrl ?? '').trim();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthUnauthenticatedState) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
-              (route) => false,
-            );
-          }
-        },
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: LanguageService.currentLanguage,
+      builder: (context, language, _) => Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        body: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthUnauthenticatedState) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
+            }
+          },
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
 
                 // Header
                 Row(
@@ -84,9 +84,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Text(
-                      'My Profile',
-                      style: TextStyle(
+                    Text(
+                      _text(language, 'My Profile', 'Umwirondoro Wanjye'),
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: _mediumGreen,
@@ -136,9 +136,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const Text(
-                            'UbuzimaConnect User',
-                            style: TextStyle(fontSize: 12),
+                          Text(
+                            _text(language, 'UbuzimaConnect User', 'Umukoresha wa UbuzimaConnect'),
+                            style: const TextStyle(fontSize: 12),
                           ),
                           Text(
                             displayEmail,
@@ -157,11 +157,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
 
                 // Language Section
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Language',
-                    style: TextStyle(fontSize: 14),
+                    _text(language, 'Language', 'Ururimi'),
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
 
@@ -181,7 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: isKinyarwanda
+                                  color: language == AppLanguage.kinyarwanda
                                   ? _mediumGreen
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(30),
@@ -190,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Text(
                                 'Kinyarwanda',
                                 style: TextStyle(
-                                  color: isKinyarwanda
+                                  color: language == AppLanguage.kinyarwanda
                                       ? Colors.white
                                       : Colors.black,
                                   fontSize: 12,
@@ -206,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: !isKinyarwanda
+                                  color: language == AppLanguage.english
                                   ? _mediumGreen
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(30),
@@ -215,7 +215,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Text(
                                 'English',
                                 style: TextStyle(
-                                  color: !isKinyarwanda
+                                  color: language == AppLanguage.english
                                       ? Colors.white
                                       : Colors.black,
                                   fontSize: 12,
@@ -239,14 +239,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Notifications', style: TextStyle(fontSize: 13)),
+                      Text(
+                        _text(language, 'Notifications', 'Amenyesha'),
+                        style: const TextStyle(fontSize: 13),
+                      ),
                       Row(
                         children: [
-                          Text('On', style: TextStyle(fontSize: 12)),
-                          Icon(Icons.arrow_forward_ios, size: 16)
+                          Text(
+                            notificationsEnabled
+                                ? _text(language, 'On', 'Bifunguye')
+                                : _text(language, 'Off', 'Bifunze'),
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          Switch.adaptive(
+                            value: notificationsEnabled,
+                            activeThumbColor: _mediumGreen,
+                            activeTrackColor: const Color(0xFF9FDCBB),
+                            onChanged: (value) {
+                              setState(() => notificationsEnabled = value);
+                            },
+                          ),
                         ],
                       )
                     ],
@@ -268,10 +283,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'Log Out',
-                        style: TextStyle(color: Colors.red, fontSize: 13),
+                        _text(language, 'Log Out', 'Sohoka'),
+                        style: const TextStyle(color: Colors.red, fontSize: 13),
                       ),
                     ),
                   ),
@@ -287,17 +302,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.red[200],
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'Logged Out',
-                        style: TextStyle(
+                        _text(language, 'Logged Out', 'Wasohotse'),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   )
-              ],
+                ],
+              ),
             ),
           ),
         ),
