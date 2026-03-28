@@ -7,8 +7,8 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   final AppointmentRepository _appointmentRepository;
 
   AppointmentBloc({required AppointmentRepository appointmentRepository})
-    : _appointmentRepository = appointmentRepository,
-      super(const AppointmentInitialState()) {
+      : _appointmentRepository = appointmentRepository,
+        super(const AppointmentInitialState()) {
     on<GetAppointmentsEvent>(_onGetAppointments);
     on<GetUpcomingAppointmentsEvent>(_onGetUpcomingAppointments);
     on<CreateAppointmentEvent>(_onCreateAppointment);
@@ -22,12 +22,17 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   ) async {
     emit(const AppointmentLoadingState());
     try {
+      print('📥 Fetching appointments for userId: ${event.userId}');
       final appointments = await _appointmentRepository.getAppointments(
         event.userId,
       );
+      print('✅ Fetched ${appointments.length} appointments');
       emit(AppointmentsLoadedState(appointments: appointments));
-    } catch (e) {
-      emit(AppointmentErrorState(message: e.toString()));
+    } catch (e, stackTrace) {
+      print('❌ Error fetching appointments: $e');
+      print('📍 Stack trace: $stackTrace');
+      emit(AppointmentErrorState(
+          message: 'Failed to load appointments: ${e.toString()}'));
     }
   }
 
