@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -64,5 +61,13 @@ class DefaultFirebaseOptions {
     projectId: 'ubuzima-connect-cc4a4',
     storageBucket: 'ubuzima-connect-cc4a4.firebasestorage.app',
     iosBundleId: 'com.example.ubuzimaConnect',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBGZ81VLBD8eu34ickgwwpi6YKA-PIAL6o',
+    appId: '1:194146947346:web:5e9c87f2c1d4a2b3f5g6h7i8',
+    messagingSenderId: '194146947346',
+    projectId: 'ubuzima-connect-cc4a4',
+    storageBucket: 'ubuzima-connect-cc4a4.firebasestorage.app',
   );
 }
