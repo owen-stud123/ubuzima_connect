@@ -10,6 +10,7 @@ import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
 import 'package:ubuzima_connect/presentation/pages/add_appointment_page.dart';
 import 'package:ubuzima_connect/presentation/pages/profile_page.dart';
+import 'package:ubuzima_connect/presentation/pages/health_tips_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -448,8 +449,11 @@ class _DashboardPageState extends State<DashboardPage> {
                           label: 'Health Tips',
                           labelRw: 'Ubwenge Ku Nzira',
                           onTap: () {
-                            print('Health Tips tapped');
-                            // TODO: Navigate to Health Tips page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const HealthTipsPage()),
+                            );
                           },
                         ),
                         _buildDashboardGridItem(
