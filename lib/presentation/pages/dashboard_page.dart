@@ -457,7 +457,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           },
                         ),
                         _buildDashboardGridItem(
-                          icon: null,
+                          icon: Icons.settings_outlined,
                           label: 'Profile',
                           labelRw: 'Umwirondoro',
                           onTap: () {

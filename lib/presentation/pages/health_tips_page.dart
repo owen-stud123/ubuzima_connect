@@ -18,7 +18,9 @@ class _HealthTipsPageState extends State<HealthTipsPage> {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              language == AppLanguage.kinyarwanda ? 'Ubwenge Ku Nzira' : 'Health Tips',
+              language == AppLanguage.kinyarwanda
+                  ? 'Ubwenge Ku Nzira'
+                  : 'Health Tips',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -43,14 +45,18 @@ class _HealthTipsPageState extends State<HealthTipsPage> {
                     children: [
                       _buildHealthTipCard(
                         icon: Icons.medical_services_outlined,
-                        title: language == AppLanguage.kinyarwanda ? 'Ubwiya Bwa Mbere' : 'First Aid',
+                        title: language == AppLanguage.kinyarwanda
+                            ? 'Ubwiya Bwa Mbere'
+                            : 'First Aid',
                         description: language == AppLanguage.kinyarwanda
                             ? 'Ufashye m\'ubwiya'
                             : 'Emergency care',
                         onTap: () {
                           _showHealthTipDetails(
                             context,
-                            language == AppLanguage.kinyarwanda ? 'Ubwiya Bwa Mbere' : 'First Aid',
+                            language == AppLanguage.kinyarwanda
+                                ? 'Ubwiya Bwa Mbere'
+                                : 'First Aid',
                             language == AppLanguage.kinyarwanda
                                 ? 'Reba amakuru y\'ubwiya bwa mbere'
                                 : 'Learn essential first aid techniques and emergency response',
@@ -60,14 +66,18 @@ class _HealthTipsPageState extends State<HealthTipsPage> {
                       ),
                       _buildHealthTipCard(
                         icon: Icons.favorite_border,
-                        title: language == AppLanguage.kinyarwanda ? 'Isuku N\'Ibisabire' : 'Hygiene/Isuku',
+                        title: language == AppLanguage.kinyarwanda
+                            ? 'Isuku N\'Ibisabire'
+                            : 'Hygiene/Isuku',
                         description: language == AppLanguage.kinyarwanda
                             ? 'Kwitima neza'
                             : 'Stay clean',
                         onTap: () {
                           _showHealthTipDetails(
                             context,
-                            language == AppLanguage.kinyarwanda ? 'Isuku N\'Ibisabire' : 'Hygiene',
+                            language == AppLanguage.kinyarwanda
+                                ? 'Isuku N\'Ibisabire'
+                                : 'Hygiene',
                             language == AppLanguage.kinyarwanda
                                 ? 'Reba amakuru y\'ubwiyunge'
                                 : 'Important hygiene practices for health',
@@ -77,14 +87,18 @@ class _HealthTipsPageState extends State<HealthTipsPage> {
                       ),
                       _buildHealthTipCard(
                         icon: Icons.restaurant_outlined,
-                        title: language == AppLanguage.kinyarwanda ? 'Ibiryo N\'Imirire' : 'Nutrition/Imirire',
+                        title: language == AppLanguage.kinyarwanda
+                            ? 'Ibiryo N\'Imirire'
+                            : 'Nutrition/Imirire',
                         description: language == AppLanguage.kinyarwanda
                             ? 'Kurya neza'
                             : 'Eat well',
                         onTap: () {
                           _showHealthTipDetails(
                             context,
-                            language == AppLanguage.kinyarwanda ? 'Ibiryo N\'Imirire' : 'Nutrition',
+                            language == AppLanguage.kinyarwanda
+                                ? 'Ibiryo N\'Imirire'
+                                : 'Nutrition',
                             language == AppLanguage.kinyarwanda
                                 ? 'Reba amakuru y\'imirire myiza'
                                 : 'Balanced diet and nutrition guidelines',
@@ -94,14 +108,18 @@ class _HealthTipsPageState extends State<HealthTipsPage> {
                       ),
                       _buildHealthTipCard(
                         icon: Icons.pregnant_woman_outlined,
-                        title: language == AppLanguage.kinyarwanda ? 'Mama n\'Abakobwa' : 'Maternal/Ababyeyi',
+                        title: language == AppLanguage.kinyarwanda
+                            ? 'Mama n\'Abakobwa'
+                            : 'Maternal/Ababyeyi',
                         description: language == AppLanguage.kinyarwanda
                             ? 'Ubwiyunge bw\'abakobwa'
                             : 'Women\'s health',
                         onTap: () {
                           _showHealthTipDetails(
                             context,
-                            language == AppLanguage.kinyarwanda ? 'Mama n\'Abakobwa' : 'Maternal Health',
+                            language == AppLanguage.kinyarwanda
+                                ? 'Mama n\'Abakobwa'
+                                : 'Maternal Health',
                             language == AppLanguage.kinyarwanda
                                 ? 'Reba amakuru y\'ubwiyunge bw\'abakobwa'
                                 : 'Maternal and women\'s health information',
