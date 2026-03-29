@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: 'Enter your password',
                       hintStyle: const TextStyle(color: Colors.grey),
                       prefixIcon: const Icon(
-                        Icons.lock_outlined,
+                        Icons.lock_outline,
                         color: Colors.grey,
                       ),
                       suffixIcon: IconButton(
@@ -267,6 +267,26 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
 
+                  const SizedBox(height: 12),
+
+                  // Forgot Password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        // TODO: Implement forgot password
+                      },
+                      child: const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Color(0xFF2E7D32),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 28),
 
                   // LOGIN button
@@ -309,28 +329,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
 
-                  const SizedBox(height: 40),
-
-                  // Forgot Password link
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {
-                        // TODO: Implement forgot password
-                        print('Forgot password tapped');
-                      },
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: Color(0xFF2E7D32),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // OR divider
                   const Row(
@@ -351,7 +350,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Google Sign-In Button
                   SizedBox(
@@ -363,6 +362,7 @@ class _LoginPageState extends State<LoginPage> {
                             .add(AuthSignInWithGoogleEvent());
                       },
                       style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
                         side: const BorderSide(
                           color: Color(0xFFDDDDDD),
                           width: 1.5,
@@ -386,38 +386,39 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
-                  // Sign Up link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Don't have an account? ",
-                        style: TextStyle(
-                          color: Color(0xFF666666),
-                          fontSize: 14,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignupPage(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            color: Color(0xFF2E7D32),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                  // Sign Up button
+                  SizedBox(
+                    height: 54,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignupPage(),
                           ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        side: const BorderSide(
+                          color: Color(0xFF2E7D32),
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    ],
+                      child: const Text(
+                        "Don't have an account? Sign Up",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF2E7D32),
+                        ),
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 40),
