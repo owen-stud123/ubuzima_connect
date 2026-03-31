@@ -27,15 +27,22 @@ import 'presentation/blocs/auth_bloc/auth_state.dart';
 import 'presentation/blocs/appointment_bloc/appointment_bloc.dart';
 import 'presentation/blocs/dashboard_bloc/dashboard_bloc.dart';
 
+// CUBIT
+import 'presentation/cubits/appointment_cubit.dart';
+
 // PAGES
 import 'presentation/pages/dashboard_page.dart';
 import 'presentation/pages/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // Firebase already initialized, continue
+  }
   await LanguageService.init();
   runApp(const MyApp());
 }
@@ -45,11 +52,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ FIX 1: Add firestore parameter
     final authSource = FirebaseAuthSourceImpl(
       firebaseAuth: FirebaseAuth.instance,
       googleSignIn: GoogleSignIn(),
-      firestore: FirebaseFirestore.instance, // ✅ REQUIRED
+      firestore: FirebaseFirestore.instance,
     );
 
     final firestoreSource = FirestoreSourceImpl(
@@ -80,6 +86,11 @@ class MyApp extends StatelessWidget {
             ),
           ),
           BlocProvider(
+            create: (context) => AppointmentCubit(
+              appointmentRepository: context.read<AppointmentRepository>(),
+            ),
+          ),
+          BlocProvider(
             create: (context) => DashboardBloc(
               context.read<AppointmentRepository>(),
             ),
@@ -88,15 +99,8 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Ubuzima Connect',
-
-          // ✅ FIX 2: theme is fine
           theme: AppTheme.lightTheme,
-
-          // ❌ FIX 2: REMOVE this (you don’t have darkTheme)
-          // darkTheme: AppTheme.darkTheme,
-
           themeMode: ThemeMode.system,
-
           home: BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthLoadingState) {
