@@ -8,12 +8,15 @@ import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_
 import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_state.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
+import 'package:ubuzima_connect/presentation/cubits/appointment_cubit.dart';
 import 'package:ubuzima_connect/presentation/pages/add_appointment_page.dart';
 import 'package:ubuzima_connect/presentation/pages/profile_page.dart';
 import 'package:ubuzima_connect/presentation/pages/health_tips_page.dart';
+import 'package:ubuzima_connect/presentation/pages/my_visits_page.dart';
+import 'package:ubuzima_connect/presentation/pages/ask_doctor_page.dart';
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -37,7 +40,26 @@ class _DashboardPageState extends State<DashboardPage> {
             .add(GetAppointmentsEvent(userId: authState.user.id));
       }
     } catch (e) {
-      print('❌ Error loading appointments: $e');
+      print('Error loading appointments: $e');
+    }
+  }
+
+  Future<void> _openAddAppointment() async {
+    final authState = context.read<AuthBloc>().state;
+
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AddAppointmentPage(),
+      ),
+    );
+
+    if (result == true && mounted) {
+      if (authState is AuthAuthenticatedState) {
+        context
+            .read<AppointmentBloc>()
+            .add(GetAppointmentsEvent(userId: authState.user.id));
+        context.read<AppointmentCubit>().reset();
+      }
     }
   }
 
@@ -93,7 +115,6 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ],
         ),
-        // User avatar
         CircleAvatar(
           radius: 28,
           backgroundColor: AppTheme.lightBlue,
@@ -351,11 +372,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Greeting section
                     _buildGreetingSection(language),
                     const SizedBox(height: 28),
-
-                    // Next appointment card
                     if (state is AppointmentsLoadedState &&
                         state.appointments.isNotEmpty)
                       Column(
@@ -416,8 +434,6 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ),
-
-                    // Grid navigation items
                     GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
@@ -431,8 +447,11 @@ class _DashboardPageState extends State<DashboardPage> {
                           label: 'My Visits',
                           labelRw: 'Isura Ryanje',
                           onTap: () {
-                            print('My Visits tapped');
-                            // TODO: Navigate to My Visits page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const MyVisitsPage()),
+                            );
                           },
                         ),
                         _buildDashboardGridItem(
@@ -440,8 +459,11 @@ class _DashboardPageState extends State<DashboardPage> {
                           label: 'Ask Doctor',
                           labelRw: 'Kubuza Muganga',
                           onTap: () {
-                            print('Ask Doctor tapped');
-                            // TODO: Navigate to Ask Doctor page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const AskDoctorPage()),
+                            );
                           },
                         ),
                         _buildDashboardGridItem(
@@ -477,14 +499,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            final result = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => AddAppointmentPage(),
-              ),
-            );
-            if (result == true) _loadAppointments();
-          },
+          onPressed: _openAddAppointment,
           icon: const Icon(Icons.add),
           label: Text(language == AppLanguage.kinyarwanda
               ? 'Gahunda Nshya'
