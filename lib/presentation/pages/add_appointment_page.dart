@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ubuzima_connect/domain/entities/appointment_entity.dart';
-import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_bloc.dart';
-import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_event.dart';
-import 'package:ubuzima_connect/presentation/blocs/appointment_bloc/appointment_state.dart';
+import 'package:ubuzima_connect/presentation/cubits/appointment_cubit.dart';
+import 'package:ubuzima_connect/presentation/cubits/appointment_state.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:ubuzima_connect/presentation/blocs/auth_bloc/auth_state.dart';
 
@@ -68,21 +67,21 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
       if (authState is AuthAuthenticatedState) {
         final appointment = AppointmentEntity(
           id: const Uuid().v4(),
-          userId: authState.user.id, // Crucial for queryfiltering
-          title: _titleController.text,
-          description: _descriptionController.text,
+          userId: authState.user.id,
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
           dateTime: _selectedDateTime!,
           status: _selectedStatus,
-          professionalName: _professionalNameController.text.isEmpty
+          professionalName: _professionalNameController.text.trim().isEmpty
               ? null
-              : _professionalNameController.text,
-          location: _locationController.text.isEmpty
+              : _professionalNameController.text.trim(),
+          location: _locationController.text.trim().isEmpty
               ? null
-              : _locationController.text,
+              : _locationController.text.trim(),
         );
-        context.read<AppointmentBloc>().add(
-              CreateAppointmentEvent(appointment: appointment),
-            );
+
+        // ✅ Use AppointmentCubit — this actually saves to Firestore
+        context.read<AppointmentCubit>().addAppointment(appointment);
       }
     } else if (_selectedDateTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -98,13 +97,22 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
         title: const Text('Add Appointment'),
         centerTitle: true,
       ),
-      body: BlocListener<AppointmentBloc, AppointmentState>(
+      body: BlocListener<AppointmentCubit, AppointmentState>(
         listener: (context, state) {
-          if (state is AppointmentCreatedState) {
-            Navigator.of(context).pop(true);
-          } else if (state is AppointmentErrorState) {
+          if (state is AppointmentCreated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+              const SnackBar(
+                content: Text('Appointment saved successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.of(context).pop(true);
+          } else if (state is AppointmentError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -146,7 +154,7 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
                 TextFormField(
                   controller: _professionalNameController,
                   decoration: const InputDecoration(
-                    labelText: 'Professional Name',
+                    labelText: 'Professional Name (optional)',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -154,7 +162,7 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
                 TextFormField(
                   controller: _locationController,
                   decoration: const InputDecoration(
-                    labelText: 'Location',
+                    labelText: 'Location (optional)',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -173,6 +181,11 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
                           : '${_selectedDateTime!.day}/${_selectedDateTime!.month}/${_selectedDateTime!.year} '
                               '${_selectedDateTime!.hour.toString().padLeft(2, '0')}:${_selectedDateTime!.minute.toString().padLeft(2, '0')}',
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: _selectedDateTime == null
+                            ? Colors.grey
+                            : Colors.black,
+                      ),
                     ),
                   ),
                 ),
@@ -196,20 +209,31 @@ class _AddAppointmentPageState extends State<AddAppointmentPage> {
                   },
                 ),
                 const SizedBox(height: 24),
-                BlocBuilder<AppointmentBloc, AppointmentState>(
+                BlocBuilder<AppointmentCubit, AppointmentState>(
                   builder: (context, state) {
+                    final isLoading = state is AppointmentCreating;
                     return ElevatedButton(
-                      onPressed:
-                          state is AppointmentLoadingState ? null : _submitForm,
-                      child: state is AppointmentLoadingState
+                      onPressed: isLoading ? null : _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF2E7D32),
+                      ),
+                      child: isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
+                                color: Colors.white,
                               ),
                             )
-                          : const Text('Create Appointment'),
+                          : const Text(
+                              'Create Appointment',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
                     );
                   },
                 ),
