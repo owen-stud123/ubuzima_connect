@@ -3,7 +3,7 @@ import 'package:ubuzima_connect/core/theme.dart';
 import 'package:ubuzima_connect/core/language_service.dart';
 
 class HealthTipsPage extends StatefulWidget {
-  const HealthTipsPage({Key? key}) : super(key: key);
+  const HealthTipsPage({super.key});
 
   @override
   State<HealthTipsPage> createState() => _HealthTipsPageState();
@@ -276,7 +276,7 @@ class _HealthTipsPageState extends State<HealthTipsPage> {
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
